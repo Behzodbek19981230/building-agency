@@ -1,0 +1,120 @@
+version: '3.9'
+
+services:
+    # PostgreSQL Database
+    postgres:
+        image: postgres:16-alpine
+        container_name: buildhub_postgres
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB:-buildhub}
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+        ports:
+            - '5432:5432'
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER:-postgres}']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    # MinIO (S3-compatible object storage)
+    minio:
+        image: minio/minio:latest
+        container_name: buildhub_minio
+        restart: unless-stopped
+        command: server /data --console-address ":9001"
+        environment:
+            MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+            MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+        ports:
+            - '9000:9000'
+            - '9001:9001'
+        volumes:
+            - minio_data:/data
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+            interval: 30s
+            timeout: 10s
+            retries: 3
+
+    # Redis (for caching/sessions)
+    redis:
+        image: redis:7-alpine
+        container_name: buildhub_redis
+        restart: unless-stopped
+        ports:
+            - '6379:6379'
+        volumes:
+            - redis_data:/data
+        command: redis-server --save 20 1 --loglevel warning
+
+    # NestJS Backend
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: buildhub_backend
+        restart: unless-stopped
+        depends_on:
+            postgres:
+                condition: service_healthy
+            minio:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        ports:
+            - '3000:3000'
+        environment:
+            NODE_ENV: production
+            DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres123}@postgres:5432/${POSTGRES_DB:-buildhub}
+            JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+            JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+            JWT_ACCESS_EXPIRES_IN: 15m
+            JWT_REFRESH_EXPIRES_IN: 7d
+            AWS_ENDPOINT: http://minio:9000
+            AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
+            AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+            AWS_REGION: us-east-1
+            AWS_S3_BUCKET: ${AWS_S3_BUCKET:-buildhub}
+            FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+            MAIL_HOST: ${MAIL_HOST}
+            MAIL_PORT: ${MAIL_PORT:-587}
+            MAIL_USER: ${MAIL_USER}
+            MAIL_PASS: ${MAIL_PASS}
+            TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+            TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+            TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+            OPENAI_API_KEY: ${OPENAI_API_KEY}
+            STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+            COMMISSION_CLIENT_RATE: 0.05
+            COMMISSION_WORKER_RATE: 0.10
+        volumes:
+            - ./backend:/app
+            - /app/node_modules
+            - /app/dist
+
+    # React Frontend
+    frontend:
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        container_name: buildhub_frontend
+        restart: unless-stopped
+        depends_on:
+            - backend
+        ports:
+            - '80:80'
+        environment:
+            VITE_API_URL: http://backend:3000/api/v1
+
+volumes:
+    postgres_data:
+    minio_data:
+    redis_data:
+
+networks:
+    default:
+        name: buildhub_network

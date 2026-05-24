@@ -1,0 +1,518 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  CLIENT
+  WORKER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum WorkerStatus {
+  AVAILABLE
+  BUSY
+  OFFLINE
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum ProjectStatus {
+  DRAFT
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum ProjectUrgency {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+  DISPUTED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  CLOSED
+}
+
+enum NotificationType {
+  PROJECT_CREATED
+  BID_RECEIVED
+  BID_ACCEPTED
+  BID_REJECTED
+  PROJECT_STARTED
+  PROJECT_COMPLETED
+  PAYMENT_RECEIVED
+  PAYMENT_RELEASED
+  REVIEW_RECEIVED
+  MESSAGE_RECEIVED
+  DISPUTE_OPENED
+  DISPUTE_RESOLVED
+  WORKER_VERIFIED
+  SYSTEM
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+enum WorkerCategory {
+  BUILDER
+  ELECTRICIAN
+  PLUMBER
+  PAINTER
+  CARPENTER
+  INTERIOR_DESIGNER
+  ARCHITECT
+  TILE_INSTALLER
+  ROOFER
+  WELDER
+  SMART_HOME
+  HVAC_SPECIALIST
+  PLASTERER
+  STUCCO_WORKER
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id                String     @id @default(uuid())
+  email             String     @unique
+  phone             String?    @unique
+  passwordHash      String
+  firstName         String
+  lastName          String
+  avatar            String?
+  role              UserRole   @default(CLIENT)
+  status            UserStatus @default(PENDING_VERIFICATION)
+  emailVerified     Boolean    @default(false)
+  phoneVerified     Boolean    @default(false)
+  emailVerifyToken  String?
+  phoneVerifyCode   String?
+  resetPasswordToken String?
+  resetPasswordExpiry DateTime?
+  lastLoginAt       DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  // Relations
+  workerProfile     WorkerProfile?
+  clientProjects    Project[]        @relation("ClientProjects")
+  bids              Bid[]
+  sentMessages      Message[]        @relation("SentMessages")
+  reviewsGiven      Review[]         @relation("ReviewsGiven")
+  reviewsReceived   Review[]         @relation("ReviewsReceived")
+  notifications     Notification[]
+  savedWorkers      SavedWorker[]    @relation("ClientSavedWorkers")
+  savedByClients    SavedWorker[]    @relation("SavedWorker")
+  refreshTokens     RefreshToken[]
+  disputes          Dispute[]        @relation("DisputeOpener")
+  payments          Payment[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model WorkerProfile {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  category           WorkerCategory
+  bio                String?
+  experience         Int                @default(0)
+  hourlyRate         Decimal?           @db.Decimal(10, 2)
+  dailyRate          Decimal?           @db.Decimal(10, 2)
+  minProjectBudget   Decimal?           @db.Decimal(10, 2)
+  status             WorkerStatus       @default(OFFLINE)
+  verificationStatus VerificationStatus @default(PENDING)
+  verificationDocs   String[]
+  isVerified         Boolean            @default(false)
+  isFeatured         Boolean            @default(false)
+  completedProjects  Int                @default(0)
+  totalEarnings      Decimal            @default(0) @db.Decimal(12, 2)
+  rating             Float              @default(0)
+  reviewCount        Int                @default(0)
+  latitude           Float?
+  longitude          Float?
+  address            String?
+  city               String?
+  region             String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills       WorkerSkill[]
+  portfolio    Portfolio[]
+  bids         Bid[]
+  availability Availability[]
+
+  @@map("worker_profiles")
+}
+
+model WorkerSkill {
+  id            String        @id @default(uuid())
+  workerProfileId String
+  name          String
+  level         Int           @default(1)
+  createdAt     DateTime      @default(now())
+
+  workerProfile WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("worker_skills")
+}
+
+model Portfolio {
+  id            String        @id @default(uuid())
+  workerProfileId String
+  title         String
+  description   String?
+  images        String[]
+  category      WorkerCategory
+  completedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  workerProfile WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("portfolios")
+}
+
+model Availability {
+  id            String        @id @default(uuid())
+  workerProfileId String
+  dayOfWeek     Int
+  startTime     String
+  endTime       String
+  isAvailable   Boolean       @default(true)
+
+  workerProfile WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+
+  @@map("availabilities")
+}
+
+model Category {
+  id          String         @id @default(uuid())
+  slug        WorkerCategory @unique
+  nameUz      String
+  nameRu      String
+  nameEn      String
+  icon        String?
+  description String?
+  isActive    Boolean        @default(true)
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+
+  projects Project[]
+
+  @@map("categories")
+}
+
+model Project {
+  id            String        @id @default(uuid())
+  clientId      String
+  categoryId    String?
+  title         String
+  description   String
+  urgency       ProjectUrgency @default(MEDIUM)
+  status        ProjectStatus  @default(DRAFT)
+  budgetMin     Decimal?       @db.Decimal(12, 2)
+  budgetMax     Decimal?       @db.Decimal(12, 2)
+  finalPrice    Decimal?       @db.Decimal(12, 2)
+  latitude      Float?
+  longitude     Float?
+  address       String?
+  city          String?
+  region        String?
+  startDate     DateTime?
+  endDate       DateTime?
+  aiCategory    String?
+  aiBudgetMin   Decimal?       @db.Decimal(12, 2)
+  aiBudgetMax   Decimal?       @db.Decimal(12, 2)
+  viewCount     Int            @default(0)
+  bidCount      Int            @default(0)
+  assignedWorkerId String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  client        User           @relation("ClientProjects", fields: [clientId], references: [id])
+  category      Category?      @relation(fields: [categoryId], references: [id])
+  images        ProjectImage[]
+  bids          Bid[]
+  chat          Chat?
+  reviews       Review[]
+  payments      Payment[]
+  disputes      Dispute[]
+
+  @@map("projects")
+}
+
+model ProjectImage {
+  id         String   @id @default(uuid())
+  projectId  String
+  url        String
+  thumbnail  String?
+  mimeType   String?
+  size       Int?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_images")
+}
+
+model Bid {
+  id            String    @id @default(uuid())
+  projectId     String
+  workerId      String
+  workerProfileId String
+  amount        Decimal   @db.Decimal(12, 2)
+  message       String
+  duration      Int?
+  durationUnit  String?
+  status        BidStatus @default(PENDING)
+  rejectedReason String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  worker        User          @relation(fields: [workerId], references: [id])
+  workerProfile WorkerProfile @relation(fields: [workerProfileId], references: [id])
+
+  @@unique([projectId, workerId])
+  @@map("bids")
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  projectId String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("chats")
+}
+
+model Message {
+  id         String      @id @default(uuid())
+  chatId     String
+  senderId   String
+  type       MessageType @default(TEXT)
+  content    String?
+  fileUrl    String?
+  fileName   String?
+  isRead     Boolean     @default(false)
+  readAt     DateTime?
+  createdAt  DateTime    @default(now())
+
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender User @relation("SentMessages", fields: [senderId], references: [id])
+
+  @@map("messages")
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  projectId   String
+  reviewerId  String
+  revieweeId  String
+  rating      Int
+  comment     String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project  Project @relation(fields: [projectId], references: [id])
+  reviewer User    @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  reviewee User    @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+
+  @@unique([projectId, reviewerId])
+  @@map("reviews")
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  projectId       String
+  payerId         String
+  amount          Decimal       @db.Decimal(12, 2)
+  commission      Decimal       @db.Decimal(12, 2)
+  netAmount       Decimal       @db.Decimal(12, 2)
+  currency        String        @default("UZS")
+  status          PaymentStatus @default(PENDING)
+  method          String?
+  transactionId   String?
+  stripePaymentId String?
+  metadata        Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  project        Project        @relation(fields: [projectId], references: [id])
+  payer          User           @relation(fields: [payerId], references: [id])
+  escrowTransaction EscrowTransaction?
+
+  @@map("payments")
+}
+
+model EscrowTransaction {
+  id          String       @id @default(uuid())
+  paymentId   String       @unique
+  amount      Decimal      @db.Decimal(12, 2)
+  status      EscrowStatus @default(HELD)
+  heldAt      DateTime     @default(now())
+  releasedAt  DateTime?
+  refundedAt  DateTime?
+  releaseNote String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+
+  @@map("escrow_transactions")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model SavedWorker {
+  id        String   @id @default(uuid())
+  clientId  String
+  workerId  String
+  createdAt DateTime @default(now())
+
+  client User @relation("ClientSavedWorkers", fields: [clientId], references: [id], onDelete: Cascade)
+  worker User @relation("SavedWorker", fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, workerId])
+  @@map("saved_workers")
+}
+
+model Dispute {
+  id          String        @id @default(uuid())
+  projectId   String
+  openedById  String
+  reason      String
+  description String
+  evidence    String[]
+  status      DisputeStatus @default(OPEN)
+  resolution  String?
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  project  Project @relation(fields: [projectId], references: [id])
+  openedBy User    @relation("DisputeOpener", fields: [openedById], references: [id])
+
+  @@map("disputes")
+}
+
+model Analytics {
+  id        String   @id @default(uuid())
+  date      DateTime @db.Date
+  metric    String
+  value     Float
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@unique([date, metric])
+  @@map("analytics")
+}
+
+model CommissionSetting {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  clientRate     Float    @default(0.05)
+  workerRate     Float    @default(0.10)
+  minAmount      Decimal  @default(0) @db.Decimal(12, 2)
+  maxAmount      Decimal? @db.Decimal(12, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("commission_settings")
+}
+
+model PlatformSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string")
+  updatedAt DateTime @updatedAt
+
+  @@map("platform_settings")
+}
