@@ -7,6 +7,7 @@ import {
   CheckCircle, MapPin, MessageSquare, Spinner,
 } from 'lucide-react';
 import { Card, CardBody, Spinner as SpinnerUI } from '@components/ui';
+import { getImageUrl } from '@/utils/image';
 
 export function WorkerEarningsPage() {
   const { data: statsData, isLoading: statsLoading } = useQuery({
@@ -86,7 +87,7 @@ export function WorkerEarningsPage() {
                       <Link to={`/clients/${p.client?.id}`} className="shrink-0">
                         <img
                           src={
-                            p.client?.avatar ||
+                            getImageUrl(p.client?.avatar) ||
                             `https://ui-avatars.com/api/?name=${p.client?.firstName ?? 'U'}&size=40&background=6366f1&color=fff`
                           }
                           alt=""
@@ -111,7 +112,7 @@ export function WorkerEarningsPage() {
                           )}
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {new Date(p.createdAt).toLocaleDateString('uz-UZ')}
+                            {new Date(p.createdAt).toLocaleDateString('en-GB').split('/').reverse().join('.')}
                           </span>
                         </div>
                       </div>

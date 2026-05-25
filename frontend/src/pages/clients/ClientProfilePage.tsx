@@ -5,6 +5,7 @@ import { reviewsService } from '@services/reviews.service';
 import { projectsService } from '@services/projects.service';
 import { useAuthStore } from '@store/authStore';
 import { Select } from '@components/ui';
+import { getImageUrl } from '@/utils/image';
 import {
   Star, MapPin, ArrowLeft, Loader2, FolderOpen, Calendar,
   ChevronDown, ChevronUp, Users, ImagePlus, X, Send,
@@ -21,11 +22,13 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 
 function formatDate(d?: string) {
   if (!d) return '';
-  return new Date(d).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
+  const date = new Date(d);
+  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
 }
 function formatDateShort(d?: string) {
   if (!d) return '';
-  return new Date(d).toLocaleDateString('uz-UZ');
+  const date = new Date(d);
+  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
 }
 
 /* ─── Star picker ─────────────────────────────────── */
@@ -198,7 +201,7 @@ function ReviewCard({ review }: { review: any }) {
       <div className="flex items-start gap-3">
         <img
           src={
-            review.reviewer?.avatar ||
+            getImageUrl(review.reviewer?.avatar) ||
             `https://ui-avatars.com/api/?name=${review.reviewer?.firstName}&size=40&background=8b5cf6&color=fff`
           }
           className="w-10 h-10 rounded-full object-cover shrink-0"
@@ -242,7 +245,7 @@ function ReviewCard({ review }: { review: any }) {
         <div className="flex gap-2 flex-wrap">
           {review.images.map((img: string, i: number) => (
             <a key={i} href={img} target="_blank" rel="noopener noreferrer">
-              <img src={img} alt=""
+              <img src={getImageUrl(img)} alt=""
                 className="h-20 w-20 object-cover rounded-xl border border-border hover:opacity-80 transition-opacity" />
             </a>
           ))}
@@ -335,7 +338,7 @@ export function ClientProfilePage() {
         <div className="flex items-center gap-5">
           <img
             src={
-              profile.avatar ||
+              getImageUrl(profile.avatar) ||
               `https://ui-avatars.com/api/?name=${profile.firstName}&size=80&background=6366f1&color=fff`
             }
             alt=""

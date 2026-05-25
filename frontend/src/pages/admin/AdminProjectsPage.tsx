@@ -3,6 +3,7 @@ import { UserPlus, X, Search, Check } from 'lucide-react';
 import { Card, CardBody, Button, StatusBadge, Spinner, Badge, Select, Input, MoneyInput, Avatar } from '@components/ui';
 import { adminService } from '@services/admin.service';
 import type { Project } from '@/types';
+import { getImageUrl } from '@/utils/image';
 
 const statusOptions = [
   { value: '', label: 'Barchasi' },
@@ -125,7 +126,7 @@ function AssignWorkerModal({ project, onClose, onAssigned }: AssignModalProps) {
                 }`}
               >
                 <Avatar
-                  src={w.user.avatar}
+                  src={getImageUrl(w.user.avatar)}
                   alt={`${w.user.firstName} ${w.user.lastName}`}
                   size="sm"
                 />
@@ -260,7 +261,7 @@ export function AdminProjectsPage() {
                     )}
                     <StatusBadge status={project.status} />
                     <span className="text-xs text-muted-foreground hidden sm:block">
-                      {new Date(project.createdAt).toLocaleDateString('uz-UZ')}
+                      {new Date(project.createdAt).toLocaleDateString('en-GB').split('/').reverse().join('.')}
                     </span>
                     {(project.status === 'OPEN' || project.status === 'DRAFT') && (
                       <Button

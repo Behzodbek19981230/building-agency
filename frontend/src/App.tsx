@@ -46,6 +46,7 @@ import { AdminWorkersPage } from '@pages/admin/AdminWorkersPage';
 import { AdminProjectsPage } from '@pages/admin/AdminProjectsPage';
 import { AdminDisputesPage } from '@pages/admin/AdminDisputesPage';
 import { AdminAnalyticsPage } from '@pages/admin/AdminAnalyticsPage';
+import { AdminCategoriesPage } from '@pages/admin/AdminCategoriesPage';
 
 // Guards
 import { ProtectedRoute } from '@components/shared/ProtectedRoute';
@@ -113,6 +114,7 @@ function App() {
         <Route path="/admin/projects" element={<AdminProjectsPage />} />
         <Route path="/admin/disputes" element={<AdminDisputesPage />} />
         <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+        <Route path="/admin/categories" element={<AdminCategoriesPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

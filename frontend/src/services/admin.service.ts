@@ -31,4 +31,10 @@ export const adminService = {
 
   searchWorkers: (search?: string) =>
     api.get('/workers', { params: { search, limit: 20, page: 1 } }),
+
+  // Categories
+  getCategories: () => api.get('/categories/admin/all'),
+  createCategory: (dto: any) => api.post('/categories', dto),
+  updateCategory: (id: string, dto: any) => api.patch(`/categories/${id}`, dto),
+  deleteCategory: (id: string) => api.delete(`/categories/${id}`),
 };

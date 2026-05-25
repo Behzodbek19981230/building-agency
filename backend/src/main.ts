@@ -14,7 +14,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 async function bootstrap() {
 	const logger = new Logger('Bootstrap');
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
-	app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads' });
+	app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
 
 	const configService = app.get(ConfigService);
 	const port = configService.get<number>('PORT', 3004);

@@ -254,8 +254,10 @@ model Category {
   nameUz      String
   nameRu      String
   nameEn      String
+  nameCyr     String?
   icon        String?
   description String?
+  subServices Json?
   isActive    Boolean        @default(true)
   order       Int            @default(0)
   createdAt   DateTime       @default(now())

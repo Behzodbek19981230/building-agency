@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { MobileBottomNav } from './MobileBottomNav';
-import { LayoutDashboard, Users, HardHat, FolderOpen, AlertTriangle, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Users, HardHat, FolderOpen, AlertTriangle, BarChart3, Layers } from 'lucide-react';
 
 const adminNavItems = [
 	{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -10,6 +10,7 @@ const adminNavItems = [
 	{ label: 'Ustalar', href: '/admin/workers', icon: HardHat },
 	{ label: 'Loyihalar', href: '/admin/projects', icon: FolderOpen },
 	{ label: 'Nizolar', href: '/admin/disputes', icon: AlertTriangle },
+	{ label: 'Xizmatlar', href: '/admin/categories', icon: Layers },
 	{ label: 'Analitika', href: '/admin/analytics', icon: BarChart3 },
 ];
 
@@ -17,7 +18,7 @@ const mobileNavItems = [
 	{ label: 'Bosh', href: '/admin', icon: LayoutDashboard },
 	{ label: 'Foydalanuvchi', href: '/admin/users', icon: Users },
 	{ label: 'Loyihalar', href: '/admin/projects', icon: FolderOpen },
-	{ label: 'Nizolar', href: '/admin/disputes', icon: AlertTriangle },
+	{ label: 'Xizmatlar', href: '/admin/categories', icon: Layers },
 	{ label: 'Analitika', href: '/admin/analytics', icon: BarChart3 },
 ];
 

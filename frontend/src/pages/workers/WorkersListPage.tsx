@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { workersService } from '@services/workers.service';
 import { Star, MapPin, CheckCircle } from 'lucide-react';
 import { SearchInput, Select, PageSpinner, Avatar, MoneyDisplay } from '@ui';
+import { getImageUrl } from '@/utils/image';
 
 const categoryOptions = [
 	{ value: '', label: 'Barcha xizmatlar' },
@@ -86,7 +87,7 @@ export function WorkersListPage() {
 							<div className='flex items-center gap-3 mb-3'>
 								<div className='relative'>
 									<Avatar
-										src={w.user?.avatar}
+										src={getImageUrl(w.user?.avatar)}
 										name={`${w.user?.firstName} ${w.user?.lastName}`}
 										size='md'
 										shape='circle'

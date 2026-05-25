@@ -6,8 +6,9 @@ import {
   Plus, MapPin, Calendar, DollarSign, Users,
   CheckCircle, XCircle, ChevronRight, Briefcase,
 } from 'lucide-react';
-import { Card, CardBody, Button, Badge, StatusBadge, Spinner } from '@components/ui';
+import { Card, CardBody, Button, Badge, StatusBadge, Spinner, ConfirmModal } from '@components/ui';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '@/utils/image';
 
 const STATUS_TABS = [
   { value: '',            label: 'Barchasi' },
@@ -31,6 +32,14 @@ export function ClientProjectsPage() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState('');
   const [actionId, setActionId] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    variant: 'danger' | 'success' | 'default';
+    confirmLabel: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['client-projects'],
@@ -50,6 +59,7 @@ export function ClientProjectsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['client-projects'] });
       toast.success('Loyiha bajarildi deb belgilandi');
+      setConfirmModal(null);
     },
     onError: (e: any) => toast.error(e?.response?.data?.message ?? 'Xatolik'),
     onSettled: () => setActionId(null),
@@ -60,24 +70,54 @@ export function ClientProjectsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['client-projects'] });
       toast.success('Loyiha bekor qilindi');
+      setConfirmModal(null);
     },
     onError: (e: any) => toast.error(e?.response?.data?.message ?? 'Xatolik'),
     onSettled: () => setActionId(null),
   });
 
   const handleComplete = (id: string) => {
-    if (!window.confirm("Loyihani bajarildi deb belgilaysizmi?")) return;
-    setActionId(id);
-    completeMutation.mutate(id);
+    setConfirmModal({
+      open: true,
+      title: 'Loyihani bajarildi deb belgilash',
+      description: 'Bu amalni qaytarib bo\'lmaydi. Loyiha tugallangan deb belgilanadi.',
+      variant: 'success',
+      confirmLabel: 'Ha, bajarildi',
+      onConfirm: () => {
+        setActionId(id);
+        completeMutation.mutate(id);
+      },
+    });
   };
 
   const handleCancel = (id: string) => {
-    if (!window.confirm("Loyihani bekor qilmoqchimisiz?")) return;
-    setActionId(id);
-    cancelMutation.mutate(id);
+    setConfirmModal({
+      open: true,
+      title: 'Loyihani bekor qilish',
+      description: 'Loyihani bekor qilmoqchimisiz? Bu amalni qaytarib bo\'lmaydi.',
+      variant: 'danger',
+      confirmLabel: 'Ha, bekor qilish',
+      onConfirm: () => {
+        setActionId(id);
+        cancelMutation.mutate(id);
+      },
+    });
   };
 
   return (
+    <>
+    {confirmModal && (
+      <ConfirmModal
+        open={confirmModal.open}
+        title={confirmModal.title}
+        description={confirmModal.description}
+        variant={confirmModal.variant}
+        confirmLabel={confirmModal.confirmLabel}
+        loading={completeMutation.isPending || cancelMutation.isPending}
+        onConfirm={confirmModal.onConfirm}
+        onClose={() => setConfirmModal(null)}
+      />
+    )}
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Loyihalarim</h1>
@@ -173,7 +213,7 @@ export function ClientProjectsPage() {
                     )}
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {new Date(p.createdAt).toLocaleDateString('uz-UZ')}
+                      {new Date(p.createdAt).toLocaleDateString('en-GB').split('/').reverse().join('.')}
                     </span>
                     {p._count?.bids !== undefined && (
                       <span className="flex items-center gap-1">
@@ -190,7 +230,7 @@ export function ClientProjectsPage() {
                     >
                       <img
                         src={
-                          p.assignedWorker.avatar ||
+                          getImageUrl(p.assignedWorker.avatar) ||
                           `https://ui-avatars.com/api/?name=${p.assignedWorker.firstName}&size=24&background=6366f1&color=fff`
                         }
                         alt=""
@@ -241,5 +281,6 @@ export function ClientProjectsPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

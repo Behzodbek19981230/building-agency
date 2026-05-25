@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { workersService } from '@services/workers.service';
 import { Plus, X, ImagePlus, Loader2, FolderOpen } from 'lucide-react';
 import { Button, Input, Textarea, Select, Card, CardBody, Spinner } from '@components/ui';
+import { getImageUrl } from '@/utils/image';
 import toast from 'react-hot-toast';
 
 const CATEGORIES = [
@@ -211,7 +212,7 @@ export function WorkerPortfolioPage() {
                 <div className="aspect-video w-full overflow-hidden rounded-t-2xl bg-muted">
                   {item.images?.[0] ? (
                     <img
-                      src={item.images[0]}
+                      src={getImageUrl(item.images[0])}
                       alt={item.title}
                       className="w-full h-full object-cover"
                     />
@@ -241,7 +242,7 @@ export function WorkerPortfolioPage() {
                       {item.images.slice(1, 5).map((img: string, i: number) => (
                         <img
                           key={i}
-                          src={img}
+                          src={getImageUrl(img)}
                           alt=""
                           className="h-10 w-10 object-cover rounded-lg border border-border shrink-0"
                         />

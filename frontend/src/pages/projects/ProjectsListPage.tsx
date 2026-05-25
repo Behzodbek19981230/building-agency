@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { projectsService } from '@services/projects.service';
 import { Search, Filter, MapPin, Clock, DollarSign, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { getImageUrl } from '@/utils/image';
 
 const urgencyLabels: Record<string, { label: string; color: string }> = {
   LOW: { label: 'Past', color: 'bg-gray-100 text-gray-600' },
@@ -54,7 +55,7 @@ export function ProjectsListPage() {
             return (
               <Link key={p.id} to={`/projects/${p.id}`} className="card overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group">
                 {p.images?.[0] ? (
-                  <img src={p.images[0].url} alt={p.title} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <img src={getImageUrl(p.images[0].url)} alt={p.title} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
                   <div className="w-full h-44 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                     <span className="text-4xl">🏗️</span>

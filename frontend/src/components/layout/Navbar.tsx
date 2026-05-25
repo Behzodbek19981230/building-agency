@@ -4,6 +4,7 @@ import { Bell, Menu, X, HardHat, LogOut, User, ChevronDown, LayoutDashboard } fr
 import { useState, useEffect, useRef } from 'react';
 import { useNotificationStore } from '@store/notificationStore';
 import { clsx } from 'clsx';
+import { getImageUrl } from '@/utils/image';
 
 export function Navbar() {
 	const { isAuthenticated, user, logout } = useAuthStore();
@@ -107,7 +108,7 @@ export function Navbar() {
 											className='flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-muted transition-all'
 										>
 											{user?.avatar ? (
-												<img src={user.avatar} alt='' className='w-8 h-8 rounded-xl object-cover' />
+												<img src={getImageUrl(user.avatar)} alt='' className='w-8 h-8 rounded-xl object-cover' />
 											) : (
 												<div className='w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-sm font-bold'>
 													{user?.firstName?.[0]}{user?.lastName?.[0]}
@@ -160,7 +161,7 @@ export function Navbar() {
 										className='md:hidden flex items-center'
 									>
 										{user?.avatar ? (
-											<img src={user.avatar} alt='' className='w-9 h-9 rounded-xl object-cover' />
+											<img src={getImageUrl(user.avatar)} alt='' className='w-9 h-9 rounded-xl object-cover' />
 										) : (
 											<div className='w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-sm font-bold'>
 												{user?.firstName?.[0]}{user?.lastName?.[0]}
@@ -230,7 +231,7 @@ export function Navbar() {
 					{isAuthenticated && (
 						<div className='flex items-center gap-3 px-3 py-3 bg-primary/5 rounded-2xl mb-4'>
 							{user?.avatar ? (
-								<img src={user.avatar} alt='' className='w-11 h-11 rounded-xl object-cover' />
+								<img src={getImageUrl(user.avatar)} alt='' className='w-11 h-11 rounded-xl object-cover' />
 							) : (
 								<div className='w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-base'>
 									{user?.firstName?.[0]}{user?.lastName?.[0]}

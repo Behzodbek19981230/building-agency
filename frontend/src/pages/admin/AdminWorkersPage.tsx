@@ -123,7 +123,7 @@ export function AdminWorkersPage() {
                     </div>
                   )}
                   <div className="text-muted-foreground">
-                    Ro'yxat: {new Date(worker.user.createdAt).toLocaleDateString('uz-UZ')}
+                    Ro'yxat: {new Date(worker.user.createdAt).toLocaleDateString('en-GB').split('/').reverse().join('.')}
                   </div>
                 </div>
 

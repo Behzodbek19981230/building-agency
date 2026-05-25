@@ -111,7 +111,7 @@ export function AdminDashboard() {
                 <div className="flex items-center gap-3 shrink-0">
                   <StatusBadge status={p.status} />
                   <span className="text-xs text-muted-foreground hidden sm:block">
-                    {new Date(p.createdAt).toLocaleDateString('uz-UZ')}
+                    {new Date(p.createdAt).toLocaleDateString('en-GB').split('/').reverse().join('.')}
                   </span>
                 </div>
               </div>

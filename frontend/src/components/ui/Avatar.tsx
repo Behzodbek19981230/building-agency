@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { getImageUrl } from '@/utils/image';
 
 interface AvatarProps {
 	src?: string | null;
@@ -38,7 +39,7 @@ export function Avatar({ src, name, size = 'md', shape = 'circle', className, on
 		<div className={clsx('relative inline-flex shrink-0', sizeMap[size], className)}>
 			{src ? (
 				<img
-					src={src}
+					src={getImageUrl(src)}
 					alt={name ?? ''}
 					className={clsx('w-full h-full object-cover', shape_cls)}
 				/>

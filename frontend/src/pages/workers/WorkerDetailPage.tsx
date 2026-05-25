@@ -6,6 +6,7 @@ import { reviewsService } from '@services/reviews.service';
 import { projectsService } from '@services/projects.service';
 import { useAuthStore } from '@store/authStore';
 import { Select } from '@components/ui';
+import { getImageUrl } from '@/utils/image';
 import {
   Star, MapPin, CheckCircle, Briefcase, Award, Loader2, ArrowLeft,
   MessageSquare, Calendar, Clock, AlertCircle, FolderOpen,
@@ -22,7 +23,8 @@ const urgencyConfig: Record<string, { label: string; color: string }> = {
 
 function formatDate(d?: string) {
   if (!d) return null;
-  return new Date(d).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
+  const date = new Date(d);
+  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
 }
 function daysLeft(d?: string) {
   if (!d) return null;
@@ -66,7 +68,7 @@ function ReviewCard({ review }: { review: any }) {
         <Link to={`/clients/${review.reviewer.id}`}>
           <img
             src={
-              review.reviewer.avatar ||
+              getImageUrl(review.reviewer.avatar) ||
               `https://ui-avatars.com/api/?name=${review.reviewer.firstName}&size=40&background=6366f1&color=fff`
             }
             className="w-10 h-10 rounded-full object-cover hover:opacity-80 transition-opacity"
@@ -120,9 +122,9 @@ function ReviewCard({ review }: { review: any }) {
       {review.images?.length > 0 && (
         <div className="flex gap-2 flex-wrap">
           {review.images.map((img: string, i: number) => (
-            <a key={i} href={img} target="_blank" rel="noopener noreferrer">
+            <a key={i} href={getImageUrl(img)} target="_blank" rel="noopener noreferrer">
               <img
-                src={img}
+                src={getImageUrl(img)}
                 alt=""
                 className="h-20 w-20 object-cover rounded-xl border border-border hover:opacity-80 transition-opacity"
               />
@@ -361,7 +363,7 @@ export function WorkerDetailPage() {
               <div className="relative">
                 <img
                   src={
-                    worker.user?.avatar ||
+                    getImageUrl(worker.user?.avatar) ||
                     `https://ui-avatars.com/api/?name=${worker.user?.firstName}&size=80&background=3b82f6&color=fff`
                   }
                   alt=""
@@ -540,7 +542,7 @@ export function WorkerDetailPage() {
                   <div key={p.id} className="rounded-xl overflow-hidden border">
                     {p.images?.[0] ? (
                       <img
-                        src={p.images[0]}
+                        src={getImageUrl(p.images[0])}
                         alt={p.title}
                         className="w-full h-32 object-cover"
                       />

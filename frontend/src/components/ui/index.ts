@@ -24,3 +24,5 @@ export { Textarea } from './Textarea';
 export { Spinner, PageSpinner } from './Spinner';
 
 export { Avatar } from './Avatar';
+
+export { ConfirmModal } from './ConfirmModal';

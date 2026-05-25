@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Card, CardBody, Button, Badge, StatusBadge, Spinner } from '@components/ui';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '@/utils/image';
 
 const STATUS_TABS = [
   { value: '',           label: 'Barchasi' },
@@ -153,7 +154,7 @@ export function WorkerBidsPage() {
                       )}
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {new Date(bid.createdAt).toLocaleDateString('uz-UZ')}
+                        {new Date(bid.createdAt).toLocaleDateString('en-GB').split('/').reverse().join('.')}
                       </span>
                     </div>
 

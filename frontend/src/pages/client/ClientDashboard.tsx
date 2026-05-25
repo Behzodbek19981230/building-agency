@@ -4,6 +4,7 @@ import { useAuthStore } from '@store/authStore';
 import { projectsService } from '@services/projects.service';
 import { PlusCircle, FolderOpen, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { getImageUrl } from '@/utils/image';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
   OPEN: { label: 'Ochiq', color: 'text-blue-600 bg-blue-50' },
@@ -85,7 +86,7 @@ export function ClientDashboard() {
               return (
                 <Link key={project.id} to={`/projects/${project.id}`} className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors">
                   {project.images?.[0] ? (
-                    <img src={project.images[0].url} alt="" className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+                    <img src={getImageUrl(project.images[0].url)} alt="" className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
                   ) : (
                     <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                       <FolderOpen className="w-6 h-6 text-muted-foreground" />

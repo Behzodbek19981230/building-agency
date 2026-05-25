@@ -96,7 +96,7 @@ export function AdminDisputesPage() {
                   <div className="flex items-center gap-2 shrink-0">
                     <StatusBadge status={dispute.status} />
                     <span className="text-xs text-muted-foreground hidden sm:block">
-                      {new Date(dispute.createdAt).toLocaleDateString('uz-UZ')}
+                      {new Date(dispute.createdAt).toLocaleDateString('en-GB').split('/').reverse().join('.')}
                     </span>
                   </div>
                 </div>

@@ -7,7 +7,7 @@ import {
   DollarSign, Lock, CheckCircle, Clock, ExternalLink,
   CreditCard, TrendingUp, AlertCircle,
 } from 'lucide-react';
-import { Card, CardBody, Button, Badge, Spinner } from '@components/ui';
+import { Card, CardBody, Button, Badge, Spinner, ConfirmModal } from '@components/ui';
 import toast from 'react-hot-toast';
 
 function statusLabel(status: string) {
@@ -30,6 +30,7 @@ export function ClientPaymentsPage() {
   const queryClient = useQueryClient();
   const [releasingId, setReleasingId] = useState<string | null>(null);
   const [initiatingId, setInitiatingId] = useState<string | null>(null);
+  const [releaseConfirm, setReleaseConfirm] = useState<string | null>(null);
 
   const { data: paymentsData, isLoading: paymentsLoading } = useQuery({
     queryKey: ['client-payments'],
@@ -57,6 +58,7 @@ export function ClientPaymentsPage() {
       queryClient.invalidateQueries({ queryKey: ['client-payments'] });
       queryClient.invalidateQueries({ queryKey: ['client-projects'] });
       toast.success('To\'lov ustaga yuborildi');
+      setReleaseConfirm(null);
     },
     onError: (e: any) => toast.error(e?.response?.data?.message ?? 'Xatolik'),
     onSettled: () => setReleasingId(null),
@@ -74,9 +76,7 @@ export function ClientPaymentsPage() {
   });
 
   const handleRelease = (paymentId: string) => {
-    if (!window.confirm("Pulni ustaga chiqarishga rozimisiz?")) return;
-    setReleasingId(paymentId);
-    releaseMutation.mutate(paymentId);
+    setReleaseConfirm(paymentId);
   };
 
   const handleInitiate = (projectId: string) => {
@@ -87,6 +87,21 @@ export function ClientPaymentsPage() {
   const isLoading = paymentsLoading || projectsLoading;
 
   return (
+    <>
+    <ConfirmModal
+      open={!!releaseConfirm}
+      title="Pulni ustaga chiqarish"
+      description="To'lovni ustaga o'tkazishga rozimisiz? Bu amal qaytarib bo'lmaydi."
+      confirmLabel="Ha, chiqarish"
+      variant="success"
+      loading={releaseMutation.isPending}
+      onConfirm={() => {
+        if (!releaseConfirm) return;
+        setReleasingId(releaseConfirm);
+        releaseMutation.mutate(releaseConfirm);
+      }}
+      onClose={() => setReleaseConfirm(null)}
+    />
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">To'lovlar</h1>
 
@@ -215,7 +230,7 @@ export function ClientPaymentsPage() {
                                   <CheckCircle className="w-3 h-3 text-emerald-500" />
                                   <span className="text-emerald-600">
                                     {pay.escrowTransaction.releasedAt
-                                      ? `${new Date(pay.escrowTransaction.releasedAt).toLocaleDateString('uz-UZ')} da chiqarildi`
+                                      ? `${new Date(pay.escrowTransaction.releasedAt).toLocaleDateString('en-GB').split('/').reverse().join('.')} da chiqarildi`
                                       : 'Chiqarildi'}
                                   </span>
                                 </>
@@ -225,7 +240,7 @@ export function ClientPaymentsPage() {
 
                           <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {new Date(pay.createdAt).toLocaleDateString('uz-UZ')}
+                            {new Date(pay.createdAt).toLocaleDateString('en-GB').split('/').reverse().join('.')}
                           </p>
                         </div>
 
@@ -251,5 +266,6 @@ export function ClientPaymentsPage() {
         </>
       )}
     </div>
+    </>
   );
 }

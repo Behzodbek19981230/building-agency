@@ -1,17 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import api from '@services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import {
 	HardHat,
-	Zap,
 	Shield,
 	Star,
 	ChevronRight,
 	Wrench,
-	Paintbrush,
-	Plug,
-	Droplets,
-	Home,
-	Building2,
 	CheckCircle2,
 	ArrowRight,
 	Users,
@@ -21,102 +17,24 @@ import {
 	Search,
 	ChevronDown,
 	ChevronUp,
-	Layers,
-	Thermometer,
 	ThumbsUp,
 	BadgeCheck,
 	MessageSquare,
-	Hammer,
-	Wind,
 } from 'lucide-react';
 
-/* ─── Data ─────────────────────────────────────────── */
-const categories = [
-	{
-		name: 'Qurilishchi',
-		icon: Building2,
-		slug: 'BUILDER',
-		count: '1 200+',
-		subs: ['Beton ishlari', "G'isht terish", 'Poydevor'],
-	},
-	{
-		name: 'Elektrik',
-		icon: Plug,
-		slug: 'ELECTRICIAN',
-		count: '850+',
-		subs: ['Provodka', 'Elektr panel', 'Rozetka'],
-	},
-	{
-		name: 'Santexnik',
-		icon: Droplets,
-		slug: 'PLUMBER',
-		count: '670+',
-		subs: ['Quvur', 'Vannaxona', 'Kondensator'],
-	},
-	{
-		name: 'Molyar',
-		icon: Paintbrush,
-		slug: 'PAINTER',
-		count: '540+',
-		subs: ["Bo'yash", "Devor qog'oz", 'Parket'],
-	},
-	{
-		name: 'Duradgor',
-		icon: Wrench,
-		slug: 'CARPENTER',
-		count: '430+',
-		subs: ['Eshik', 'Shkaf', 'Parket'],
-	},
-	{
-		name: 'Dizayner',
-		icon: Home,
-		slug: 'INTERIOR_DESIGNER',
-		count: '310+',
-		subs: ['Ichki bezak', '3D dizayn', 'Mebel'],
-	},
-	{
-		name: 'Plitkachi',
-		icon: Layers,
-		slug: 'TILE_INSTALLER',
-		count: '290+',
-		subs: ['Pol plitkasi', 'Devor plitkasi', 'Mozaika'],
-	},
-	{
-		name: 'HVAC',
-		icon: Wind,
-		slug: 'HVAC_SPECIALIST',
-		count: '180+',
-		subs: ['Konditioner', 'Ventilyatsiya', 'Isitish'],
-	},
-	{
-		name: 'Payvandchi',
-		icon: Zap,
-		slug: 'WELDER',
-		count: '220+',
-		subs: ['Metal', 'Darvoza', 'Panjaralar'],
-	},
-	{
-		name: 'Tom ustasi',
-		icon: HardHat,
-		slug: 'ROOFER',
-		count: '150+',
-		subs: ['Shifer', 'Ondulin', "Tom ta'miri"],
-	},
-	{
-		name: 'Shtukaturchi',
-		icon: Hammer,
-		slug: 'PLASTERER',
-		count: '380+',
-		subs: ['Devor suvash', 'Gips', 'Fasad'],
-	},
-	{
-		name: 'Aqlli uy',
-		icon: Thermometer,
-		slug: 'SMART_HOME',
-		count: '90+',
-		subs: ['Signalizatsiya', 'Kamera', 'Avtomatika'],
-	},
-];
+/* ─── Icon renderer ────────────────────────────────── */
+function CategoryIcon({ icon }: { icon?: string | null }) {
+	if (!icon) return <Wrench className='w-5 h-5 md:w-6 md:h-6 text-primary' />;
+	if (icon.trim().startsWith('<svg')) {
+		return (
+			<span
+				className='w-5 h-5 md:w-6 md:h-6 text-primary flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:fill-current'
+				dangerouslySetInnerHTML={{ __html: icon }}
+			/>
+		);
+	}
+	return <span className='text-xl md:text-2xl leading-none'>{icon}</span>;
+}
 
 const stats = [
 	{ value: '5 000+', label: "Ro'yxatdan o'tgan usta", icon: Users, color: 'text-primary' },
@@ -258,6 +176,13 @@ export function LandingPage() {
 	const navigate = useNavigate();
 	const [search, setSearch] = useState('');
 	const [slide, setSlide] = useState(0);
+
+	const { data: catsData } = useQuery({
+		queryKey: ['categories-public'],
+		queryFn: () => api.get('/categories'),
+		staleTime: 5 * 60 * 1000,
+	});
+	const categories: any[] = catsData?.data?.data ?? [];
 
 	const next = useCallback(() => setSlide((s) => (s + 1) % SLIDES.length), []);
 
@@ -419,25 +344,23 @@ export function LandingPage() {
 					</div>
 
 					<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4'>
-						{categories.map((cat) => {
-							const Icon = cat.icon;
-							return (
-								<Link
-									key={cat.slug}
-									to={`/workers?category=${cat.slug}`}
-									className='group bg-white rounded-2xl border border-border p-4 md:p-5 hover:border-primary/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-200'
-								>
-									<div className='flex items-start gap-3 mb-3'>
-										<div className='w-10 h-10 md:w-11 md:h-11 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors'>
-											<Icon className='w-5 h-5 md:w-6 md:h-6 text-primary' />
-										</div>
-										<div className='min-w-0'>
-											<p className='font-semibold text-sm leading-tight'>{cat.name}</p>
-											<p className='text-xs text-primary font-medium mt-0.5'>{cat.count} usta</p>
-										</div>
+						{categories.map((cat) => (
+							<Link
+								key={cat.slug}
+								to={`/workers?category=${cat.slug}`}
+								className='group bg-white rounded-2xl border border-border p-4 md:p-5 hover:border-primary/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-200'
+							>
+								<div className='flex items-start gap-3 mb-3'>
+									<div className='w-10 h-10 md:w-11 md:h-11 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors'>
+										<CategoryIcon icon={cat.icon} />
 									</div>
+									<div className='min-w-0'>
+										<p className='font-semibold text-sm leading-tight'>{cat.nameUz}</p>
+									</div>
+								</div>
+								{Array.isArray(cat.subServices) && cat.subServices.length > 0 && (
 									<ul className='space-y-1'>
-										{cat.subs.map((sub) => (
+										{(cat.subServices as string[]).slice(0, 3).map((sub) => (
 											<li
 												key={sub}
 												className='text-xs text-muted-foreground flex items-center gap-1.5'
@@ -447,12 +370,12 @@ export function LandingPage() {
 											</li>
 										))}
 									</ul>
-									<div className='flex items-center gap-1 mt-3 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity'>
-										Ko'rish <ChevronRight className='w-3 h-3' />
-									</div>
-								</Link>
-							);
-						})}
+								)}
+								<div className='flex items-center gap-1 mt-3 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity'>
+									Ko'rish <ChevronRight className='w-3 h-3' />
+								</div>
+							</Link>
+						))}
 					</div>
 
 					<div className='text-center mt-8'>

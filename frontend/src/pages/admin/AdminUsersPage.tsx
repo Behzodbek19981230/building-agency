@@ -4,6 +4,7 @@ import { Card, CardBody, Button, StatusBadge, Avatar, Spinner, Select, Badge } f
 import { SearchInput } from '@components/ui';
 import { adminService } from '@services/admin.service';
 import type { User } from '@/types';
+import { getImageUrl } from '@/utils/image';
 
 const roleOptions = [
   { value: '', label: 'Barchasi' },
@@ -91,7 +92,7 @@ export function AdminUsersPage() {
               {users.map((user) => (
                 <div key={user.id} className="flex items-center gap-4 px-5 py-3">
                   <Avatar
-                    src={user.avatar}
+                    src={getImageUrl(user.avatar)}
                     alt={`${user.firstName} ${user.lastName}`}
                     size="sm"
                   />
