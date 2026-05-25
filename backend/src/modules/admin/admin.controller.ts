@@ -68,4 +68,24 @@ export class AdminController {
   getAnalytics(@Query('period') period?: 'week' | 'month' | 'year') {
     return this.adminService.getAnalytics(period);
   }
+
+  @Patch('projects/:id/assign')
+  @ApiOperation({ summary: 'Admin: assign worker to project directly' })
+  assignWorker(
+    @Param('id') projectId: string,
+    @Body('workerUserId') workerUserId: string,
+    @Body('finalPrice') finalPrice?: number,
+  ) {
+    return this.adminService.assignWorkerToProject(projectId, workerUserId, finalPrice);
+  }
+
+  @Get('projects')
+  @ApiOperation({ summary: 'Admin: get all projects with any status' })
+  getAllProjects(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('status') status?: string,
+  ) {
+    return this.adminService.getAllProjects(page, limit, status);
+  }
 }

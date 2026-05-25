@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../config/prisma.service';
 import { UserStatus, VerificationStatus } from '@prisma/client';
 
@@ -134,5 +134,57 @@ export class AdminService {
       take: period === 'week' ? 7 : period === 'month' ? 30 : 365,
     });
     return { data: analytics };
+  }
+
+  async assignWorkerToProject(projectId: string, workerUserId: string, finalPrice?: number) {
+    const project = await this.prisma.project.findUnique({ where: { id: projectId } });
+    if (!project) throw new NotFoundException('Project not found');
+    if (!['OPEN', 'DRAFT'].includes(project.status)) {
+      throw new BadRequestException('Project must be OPEN or DRAFT to assign a worker');
+    }
+
+    const workerProfile = await this.prisma.workerProfile.findUnique({ where: { userId: workerUserId } });
+    if (!workerProfile) throw new NotFoundException('Worker profile not found for this user');
+
+    await this.prisma.$transaction([
+      this.prisma.project.update({
+        where: { id: projectId },
+        data: {
+          status: 'IN_PROGRESS',
+          assignedWorkerId: workerUserId,
+          ...(finalPrice ? { finalPrice } : {}),
+        },
+      }),
+      this.prisma.chat.upsert({
+        where: { projectId },
+        create: { projectId },
+        update: { isActive: true },
+      }),
+    ]);
+
+    return { message: 'Worker assigned to project by admin' };
+  }
+
+  async getAllProjects(page = 1, limit = 20, status?: string) {
+    const skip = (page - 1) * limit;
+    const where: any = {};
+    if (status) where.status = status;
+
+    const [total, items] = await Promise.all([
+      this.prisma.project.count({ where }),
+      this.prisma.project.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          category: true,
+          client: { select: { id: true, firstName: true, lastName: true } },
+          _count: { select: { bids: true } },
+        },
+      }),
+    ]);
+
+    return { data: items, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   }
 }

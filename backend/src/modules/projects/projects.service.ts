@@ -148,8 +148,12 @@ export class ProjectsService {
     return { message: 'Project cancelled' };
   }
 
-  async getMyProjects(userId: string, status?: ProjectStatus) {
-    const where: any = { clientId: userId };
+  async getMyProjects(userId: string, status?: ProjectStatus, role?: string) {
+    const where: any =
+      role === 'WORKER'
+        ? { assignedWorkerId: userId }
+        : { clientId: userId };
+
     if (status) where.status = status;
 
     const projects = await this.prisma.project.findMany({
@@ -158,6 +162,7 @@ export class ProjectsService {
       include: {
         images: { take: 1 },
         category: true,
+        client: { select: { id: true, firstName: true, lastName: true, avatar: true } },
         _count: { select: { bids: true } },
       },
     });

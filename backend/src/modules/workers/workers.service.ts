@@ -87,7 +87,25 @@ export class WorkersService {
     });
 
     if (!profile) throw new NotFoundException('Worker not found');
-    return { data: profile };
+
+    const activeProjects = await this.prisma.project.findMany({
+      where: { assignedWorkerId: profile.userId, status: 'IN_PROGRESS' },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        startDate: true,
+        endDate: true,
+        city: true,
+        address: true,
+        urgency: true,
+        category: { select: { nameUz: true, nameRu: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 5,
+    });
+
+    return { data: { ...profile, activeProjects } };
   }
 
   async findByUserId(userId: string) {

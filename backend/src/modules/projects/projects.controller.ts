@@ -50,10 +50,13 @@ export class ProjectsController {
   }
 
   @Get('my')
-  @Roles('CLIENT')
-  @ApiOperation({ summary: 'Get my projects (Client)' })
-  getMyProjects(@CurrentUser('id') userId: string, @Query('status') status?: any) {
-    return this.projectsService.getMyProjects(userId, status);
+  @ApiOperation({ summary: 'Get my projects (Client or Worker)' })
+  getMyProjects(
+    @CurrentUser('id') userId: string,
+    @CurrentUser('role') role: string,
+    @Query('status') status?: any,
+  ) {
+    return this.projectsService.getMyProjects(userId, status, role);
   }
 
   @Public()

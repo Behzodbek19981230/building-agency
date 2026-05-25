@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -30,5 +31,12 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user by ID' })
   findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
+  }
+
+  @Public()
+  @Get(':id/public-profile')
+  @ApiOperation({ summary: 'Get public profile with projects and reviews' })
+  getPublicProfile(@Param('id') id: string) {
+    return this.usersService.getPublicProfile(id);
   }
 }

@@ -380,6 +380,7 @@ model Review {
   revieweeId  String
   rating      Int
   comment     String?
+  images      String[] @default([])
   isPublic    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

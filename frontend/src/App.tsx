@@ -20,6 +20,7 @@ import { ProjectsListPage } from '@pages/projects/ProjectsListPage';
 import { ProjectDetailPage } from '@pages/projects/ProjectDetailPage';
 import { WorkersListPage } from '@pages/workers/WorkersListPage';
 import { WorkerDetailPage } from '@pages/workers/WorkerDetailPage';
+import { ClientProfilePage } from '@pages/clients/ClientProfilePage';
 
 // Client Pages
 import { ClientDashboard } from '@pages/client/ClientDashboard';
@@ -62,6 +63,7 @@ function App() {
         <Route path="/projects/:id" element={<ProjectDetailPage />} />
         <Route path="/workers" element={<WorkersListPage />} />
         <Route path="/workers/:id" element={<WorkerDetailPage />} />
+        <Route path="/clients/:id" element={<ClientProfilePage />} />
       </Route>
 
       {/* Auth routes */}
