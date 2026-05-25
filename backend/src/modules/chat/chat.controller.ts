@@ -39,4 +39,23 @@ export class ChatController {
   ) {
     return this.chatService.getMessages(chatId, userId, page, limit);
   }
+
+  @Post(':chatId/messages')
+  @ApiOperation({ summary: 'Send a message' })
+  sendMessage(
+    @Param('chatId') chatId: string,
+    @CurrentUser('id') userId: string,
+    @Body() body: { content?: string; type?: string },
+  ) {
+    return this.chatService.createMessage(userId, chatId, {
+      content: body.content,
+      type: (body.type as any) || 'TEXT',
+    });
+  }
+
+  @Post(':chatId/read')
+  @ApiOperation({ summary: 'Mark messages as read' })
+  markRead(@Param('chatId') chatId: string, @CurrentUser('id') userId: string) {
+    return this.chatService.markMessagesRead(chatId, userId);
+  }
 }

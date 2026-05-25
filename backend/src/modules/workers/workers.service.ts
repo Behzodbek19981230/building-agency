@@ -1,9 +1,5 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { toFileUrl } from '../../common/utils/upload.util';
 import { PrismaService } from '../../config/prisma.service';
 import {
   CreateWorkerProfileDto,
@@ -142,8 +138,7 @@ export class WorkersService {
     const profile = await this.prisma.workerProfile.findUnique({ where: { userId } });
     if (!profile) throw new NotFoundException('Worker profile not found');
 
-    const images: string[] = [];
-    // TODO: Upload files to S3/MinIO and get URLs
+    const images = files?.map(toFileUrl) ?? [];
 
     const portfolio = await this.prisma.portfolio.create({
       data: {

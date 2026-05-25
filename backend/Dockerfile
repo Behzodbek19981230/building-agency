@@ -25,7 +25,7 @@ COPY package*.json ./
 
 ENV NODE_ENV=production
 
-EXPOSE 3000
+EXPOSE 3004
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]

@@ -4,7 +4,6 @@ import {
   Post,
   Put,
   Patch,
-  Delete,
   Body,
   Param,
   Query,
@@ -14,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { createDiskStorage, imageFileFilter } from '../../common/utils/upload.util';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto, UpdateProjectDto, ProjectQueryDto } from './dto/project.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -31,7 +31,7 @@ export class ProjectsController {
 
   @Post()
   @Roles('CLIENT')
-  @UseInterceptors(FilesInterceptor('images', 10))
+  @UseInterceptors(FilesInterceptor('images', 10, { storage: createDiskStorage('projects'), fileFilter: imageFileFilter }))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create new project (Client)' })
   create(

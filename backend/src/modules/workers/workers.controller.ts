@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { createDiskStorage, imageFileFilter } from '../../common/utils/upload.util';
 import { WorkersService } from './workers.service';
 import {
   CreateWorkerProfileDto,
@@ -92,7 +93,7 @@ export class WorkersController {
 
   @Post('portfolio')
   @Roles('WORKER')
-  @UseInterceptors(FilesInterceptor('images', 10))
+  @UseInterceptors(FilesInterceptor('images', 10, { storage: createDiskStorage('portfolio'), fileFilter: imageFileFilter }))
   @ApiOperation({ summary: 'Add portfolio item' })
   addPortfolio(
     @CurrentUser('id') userId: string,

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../config/prisma.service';
 import { CreateProjectDto, UpdateProjectDto, ProjectQueryDto } from './dto/project.dto';
+import { toFileUrl } from '../../common/utils/upload.util';
 import { ProjectStatus, UserRole } from '@prisma/client';
 
 @Injectable()
@@ -34,10 +35,22 @@ export class ProjectsService {
       include: { images: true, category: true, client: { select: { id: true, firstName: true, lastName: true, avatar: true } } },
     });
 
+    if (files?.length) {
+      await this.prisma.projectImage.createMany({
+        data: files.map((file, index) => ({
+          projectId: project.id,
+          url: toFileUrl(file),
+          mimeType: file.mimetype,
+          size: file.size,
+          order: index,
+        })),
+      });
+    }
+
     return { data: project, message: 'Project created successfully' };
   }
 
-  async findAll(query: ProjectQueryDto, userId?: string) {
+  async findAll(query: ProjectQueryDto, _userId?: string) {
     const { page = 1, limit = 10, search, categoryId, urgency, city, budgetMin, budgetMax, sortBy = 'createdAt', sortOrder = 'desc' } = query;
     const skip = (page - 1) * limit;
 
@@ -77,7 +90,7 @@ export class ProjectsService {
     };
   }
 
-  async findOne(id: string, userId?: string) {
+  async findOne(id: string, _userId?: string) {
     const project = await this.prisma.project.findUnique({
       where: { id },
       include: {

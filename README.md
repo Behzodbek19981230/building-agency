@@ -4,18 +4,18 @@
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | React 18, Vite, TypeScript, TailwindCSS, shadcn/ui |
-| **Backend** | NestJS, TypeScript |
-| **Database** | PostgreSQL 16 |
-| **ORM** | Prisma |
-| **Auth** | JWT + Refresh Tokens |
-| **Real-time** | Socket.io |
-| **Storage** | MinIO (S3-compatible) |
-| **State** | Zustand |
-| **API Client** | TanStack Query + Axios |
-| **Container** | Docker + Docker Compose |
+| Layer          | Technology                                         |
+| -------------- | -------------------------------------------------- |
+| **Frontend**   | React 18, Vite, TypeScript, TailwindCSS, shadcn/ui |
+| **Backend**    | NestJS, TypeScript                                 |
+| **Database**   | PostgreSQL 16                                      |
+| **ORM**        | Prisma                                             |
+| **Auth**       | JWT + Refresh Tokens                               |
+| **Real-time**  | Socket.io                                          |
+| **Storage**    | MinIO (S3-compatible)                              |
+| **State**      | Zustand                                            |
+| **API Client** | TanStack Query + Axios                             |
+| **Container**  | Docker + Docker Compose                            |
 
 ## Architecture
 
@@ -72,28 +72,33 @@ building-agency/
 ## Tez boshlash (Local Development)
 
 ### 1. Talablar
+
 - Node.js 20+
 - Docker + Docker Compose
 - Git
 
 ### 2. Klonlash
+
 ```bash
 git clone <repo-url>
 cd building-agency
 ```
 
 ### 3. Environment fayllari
+
 ```bash
 cp .env.example .env
 # .env faylini tahrirlang: JWT secret, email, va boshqalar
 ```
 
 ### 4. Docker services (PostgreSQL + MinIO + Redis)
+
 ```bash
 docker-compose up postgres minio redis -d
 ```
 
 ### 5. Backend sozlash
+
 ```bash
 cd backend
 npm install
@@ -104,6 +109,7 @@ npm run start:dev
 ```
 
 ### 6. Frontend sozlash
+
 ```bash
 cd frontend
 npm install
@@ -115,15 +121,15 @@ Brauzerda oching: http://localhost:5173
 
 ## Test foydalanuvchilar (Seed dan keyin)
 
-| Rol | Email | Parol |
-|-----|-------|-------|
-| Admin | admin@buildhub.uz | Admin123! |
-| Mijoz | client@test.uz | Client123! |
-| Usta | worker@test.uz | Worker123! |
+| Rol   | Email             | Parol      |
+| ----- | ----------------- | ---------- |
+| Admin | admin@buildhub.uz | Admin123!  |
+| Mijoz | client@test.uz    | Client123! |
+| Usta  | worker@test.uz    | Worker123! |
 
 ## API Dokumentatsiyasi (Swagger)
 
-Backend ishga tushganda: http://localhost:3000/api/docs
+Backend ishga tushganda: http://localhost:3004/api/docs
 
 ## Docker bilan ishga tushirish (Production)
 
