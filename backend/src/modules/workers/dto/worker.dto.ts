@@ -4,15 +4,41 @@ import {
   IsOptional,
   IsNumber,
   IsArray,
+  IsInt,
   MinLength,
   MaxLength,
   Min,
   Max,
   IsBoolean,
+  ValidateNested,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { WorkerCategory, WorkerStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
+
+export class SkillItemDto {
+  @ApiProperty()
+  @IsString()
+  name: string;
+
+  @ApiProperty()
+  @IsInt()
+  @Type(() => Number)
+  price: number;
+}
+
+export class SkillDto {
+  @ApiProperty()
+  @IsString()
+  name: string;
+
+  @ApiPropertyOptional({ type: [SkillItemDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SkillItemDto)
+  items?: SkillItemDto[];
+}
 
 export class CreateWorkerProfileDto {
   @ApiProperty({ enum: WorkerCategory })
@@ -79,11 +105,12 @@ export class CreateWorkerProfileDto {
   @IsString()
   region?: string;
 
-  @ApiPropertyOptional({ type: [String] })
+  @ApiPropertyOptional({ type: [SkillDto] })
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  skills?: string[];
+  @ValidateNested({ each: true })
+  @Type(() => SkillDto)
+  skills?: SkillDto[];
 }
 
 export class UpdateWorkerProfileDto extends CreateWorkerProfileDto {}
@@ -141,6 +168,11 @@ export class WorkerQueryDto {
   @IsOptional()
   @IsString()
   sortOrder?: 'asc' | 'desc' = 'desc';
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
 
 export class CreatePortfolioDto {

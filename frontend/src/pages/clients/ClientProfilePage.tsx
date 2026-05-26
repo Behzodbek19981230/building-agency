@@ -8,7 +8,7 @@ import { Select } from '@components/ui';
 import { getImageUrl } from '@/utils/image';
 import {
   Star, MapPin, ArrowLeft, Loader2, FolderOpen, Calendar,
-  ChevronDown, ChevronUp, Users, ImagePlus, X, Send,
+  ChevronDown, ChevronUp, Users, ImagePlus, X, Send, Phone,
 } from 'lucide-react';
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -196,21 +196,31 @@ function ReviewCard({ review }: { review: any }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = review.comment && review.comment.length > 160;
 
+  const reviewerProfileId = review.reviewer?.workerProfile?.id;
+  const ReviewerWrapper = ({ children }: { children: React.ReactNode }) =>
+    reviewerProfileId
+      ? <Link to={`/workers/${reviewerProfileId}`} className="hover:opacity-80 transition-opacity">{children}</Link>
+      : <>{children}</>;
+
   return (
     <div className="border border-border rounded-2xl p-4 space-y-3 bg-surface-50">
       <div className="flex items-start gap-3">
-        <img
-          src={
-            getImageUrl(review.reviewer?.avatar) ||
-            `https://ui-avatars.com/api/?name=${review.reviewer?.firstName}&size=40&background=8b5cf6&color=fff`
-          }
-          className="w-10 h-10 rounded-full object-cover shrink-0"
-          alt=""
-        />
+        <ReviewerWrapper>
+          <img
+            src={
+              getImageUrl(review.reviewer?.avatar) ||
+              `https://ui-avatars.com/api/?name=${review.reviewer?.firstName}&size=40&background=8b5cf6&color=fff`
+            }
+            className="w-10 h-10 rounded-full object-cover shrink-0"
+            alt=""
+          />
+        </ReviewerWrapper>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm">
-            {review.reviewer?.firstName} {review.reviewer?.lastName}
-          </p>
+          <ReviewerWrapper>
+            <p className={`font-semibold text-sm ${reviewerProfileId ? 'hover:text-primary transition-colors' : ''}`}>
+              {review.reviewer?.firstName} {review.reviewer?.lastName}
+            </p>
+          </ReviewerWrapper>
           {review.project && (
             <p className="text-xs text-muted-foreground truncate">
               Loyiha: {review.project.title}
@@ -349,6 +359,11 @@ export function ClientProfilePage() {
             <p className="text-sm text-muted-foreground mt-0.5">
               Ro'yxatdan o'tgan: {formatDate(profile.createdAt)}
             </p>
+            {profile.phone && (
+              <a href={`tel:${profile.phone}`} className="inline-flex items-center gap-1.5 text-sm text-primary font-medium mt-1 hover:underline">
+                <Phone className="w-3.5 h-3.5" /> {profile.phone}
+              </a>
+            )}
             <div className="flex flex-wrap gap-4 mt-3">
               <div className="text-center">
                 <p className="text-lg font-bold">{projects.length}</p>

@@ -31,12 +31,12 @@ export function ClientDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Salom, {user?.firstName}! 👋</h1>
-          <p className="text-muted-foreground mt-1">Loyihalaringizni boshqaring</p>
+          <h1 className="text-xl md:text-2xl font-bold">Salom, {user?.firstName}! 👋</h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">Loyihalaringizni boshqaring</p>
         </div>
-        <Link to="/client/projects/create" className="btn-primary gap-2">
+        <Link to="/client/projects/create" className="btn-primary gap-2 text-sm shrink-0">
           <PlusCircle className="w-4 h-4" /> Yangi loyiha
         </Link>
       </div>
@@ -51,12 +51,12 @@ export function ClientDashboard() {
         ].map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="card p-5">
-              <div className={clsx('w-10 h-10 rounded-xl flex items-center justify-center mb-3', s.color)}>
-                <Icon className="w-5 h-5" />
+            <div key={s.label} className="card p-3 md:p-5">
+              <div className={clsx('w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center mb-2 md:mb-3', s.color)}>
+                <Icon className="w-4 h-4 md:w-5 md:h-5" />
               </div>
-              <div className="text-2xl font-bold">{s.value}</div>
-              <div className="text-sm text-muted-foreground">{s.label}</div>
+              <div className="text-xl md:text-2xl font-bold">{s.value}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">{s.label}</div>
             </div>
           );
         })}
@@ -84,12 +84,12 @@ export function ClientDashboard() {
             {projects.slice(0, 5).map((project: any) => {
               const s = statusLabels[project.status] || { label: project.status, color: 'text-gray-600 bg-gray-50' };
               return (
-                <Link key={project.id} to={`/projects/${project.id}`} className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors">
+                <Link key={project.id} to={`/projects/${project.id}`} className="flex items-center gap-3 p-3 md:p-4 hover:bg-muted/50 transition-colors">
                   {project.images?.[0] ? (
-                    <img src={getImageUrl(project.images[0].url)} alt="" className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+                    <img src={getImageUrl(project.images[0].url)} alt="" className="w-11 h-11 md:w-14 md:h-14 rounded-lg object-cover flex-shrink-0" />
                   ) : (
-                    <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                      <FolderOpen className="w-6 h-6 text-muted-foreground" />
+                    <div className="w-11 h-11 md:w-14 md:h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                      <FolderOpen className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">

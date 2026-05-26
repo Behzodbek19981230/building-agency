@@ -5,12 +5,29 @@ import {
   BadRequestException,
   ConflictException,
 } from '@nestjs/common';
+import { IsNumber, IsString, IsOptional, Min, MinLength, MaxLength } from 'class-validator';
+import { Type } from 'class-transformer';
 import { PrismaService } from '../../config/prisma.service';
 
 export class CreateBidDto {
+  @IsNumber({}, { message: 'Narx raqam bo\'lishi kerak' })
+  @Min(1, { message: 'Narx 0 dan katta bo\'lishi kerak' })
+  @Type(() => Number)
   amount: number;
+
+  @IsString({ message: 'Xabar matn bo\'lishi kerak' })
+  @MinLength(5, { message: 'Xabar kamida 5 ta belgidan iborat bo\'lishi kerak' })
+  @MaxLength(2000, { message: 'Xabar 2000 ta belgidan oshmasligi kerak' })
   message: string;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Muddat raqam bo\'lishi kerak' })
+  @Min(1, { message: 'Muddat kamida 1 kun bo\'lishi kerak' })
+  @Type(() => Number)
   duration?: number;
+
+  @IsOptional()
+  @IsString()
   durationUnit?: string;
 }
 

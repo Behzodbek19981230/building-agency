@@ -1,9 +1,11 @@
-import { Controller, Get, Put, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Post, Param, Body, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { createDiskStorage, imageFileFilter, toFileUrl } from '../../common/utils/upload.util';
 
 @ApiTags('users')
 @Controller('users')
@@ -16,6 +18,20 @@ export class UsersController {
   @ApiOperation({ summary: 'Get my profile' })
   getProfile(@CurrentUser('id') userId: string) {
     return this.usersService.findById(userId);
+  }
+
+  @Post('avatar')
+  @ApiOperation({ summary: 'Upload avatar' })
+  @UseInterceptors(FileInterceptor('avatar', {
+    storage: createDiskStorage('avatars'),
+    fileFilter: imageFileFilter,
+  }))
+  async uploadAvatar(
+    @CurrentUser('id') userId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const url = toFileUrl(file);
+    return this.usersService.updateAvatar(userId, url);
   }
 
   @Put('profile')

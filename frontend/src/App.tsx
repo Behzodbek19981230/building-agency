@@ -27,6 +27,7 @@ import { ClientDashboard } from '@pages/client/ClientDashboard';
 import { CreateProjectPage } from '@pages/client/CreateProjectPage';
 import { ClientProjectsPage } from '@pages/client/ClientProjectsPage';
 import { ClientPaymentsPage } from '@pages/client/ClientPaymentsPage';
+import { ClientSettingsPage } from '@pages/client/ClientSettingsPage';
 
 // Worker Pages
 import { WorkerDashboard } from '@pages/worker/WorkerDashboard';
@@ -44,7 +45,6 @@ import { AdminDashboard } from '@pages/admin/AdminDashboard';
 import { AdminUsersPage } from '@pages/admin/AdminUsersPage';
 import { AdminWorkersPage } from '@pages/admin/AdminWorkersPage';
 import { AdminProjectsPage } from '@pages/admin/AdminProjectsPage';
-import { AdminDisputesPage } from '@pages/admin/AdminDisputesPage';
 import { AdminAnalyticsPage } from '@pages/admin/AdminAnalyticsPage';
 import { AdminCategoriesPage } from '@pages/admin/AdminCategoriesPage';
 
@@ -92,6 +92,7 @@ function App() {
         <Route path="/client/chat" element={<ChatPage />} />
         <Route path="/client/chat/:chatId" element={<ChatPage />} />
         <Route path="/client/notifications" element={<NotificationsPage />} />
+        <Route path="/client/settings" element={<ClientSettingsPage />} />
       </Route>
 
       {/* Worker routes */}
@@ -112,7 +113,6 @@ function App() {
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/workers" element={<AdminWorkersPage />} />
         <Route path="/admin/projects" element={<AdminProjectsPage />} />
-        <Route path="/admin/disputes" element={<AdminDisputesPage />} />
         <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
         <Route path="/admin/categories" element={<AdminCategoriesPage />} />
       </Route>

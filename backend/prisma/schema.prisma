@@ -208,15 +208,28 @@ model WorkerProfile {
 }
 
 model WorkerSkill {
-  id            String        @id @default(uuid())
+  id              String            @id @default(uuid())
   workerProfileId String
-  name          String
-  level         Int           @default(1)
-  createdAt     DateTime      @default(now())
+  name            String
+  level           Int               @default(1)
+  createdAt       DateTime          @default(now())
 
-  workerProfile WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+  workerProfile   WorkerProfile     @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+  items           WorkerSkillItem[]
 
   @@map("worker_skills")
+}
+
+model WorkerSkillItem {
+  id        String      @id @default(uuid())
+  skillId   String
+  name      String
+  price     Int
+  createdAt DateTime    @default(now())
+
+  skill     WorkerSkill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@map("worker_skill_items")
 }
 
 model Portfolio {
@@ -277,7 +290,8 @@ model Project {
   status        ProjectStatus  @default(DRAFT)
   budgetMin     Decimal?       @db.Decimal(12, 2)
   budgetMax     Decimal?       @db.Decimal(12, 2)
-  finalPrice    Decimal?       @db.Decimal(12, 2)
+  finalPrice        Decimal?       @db.Decimal(12, 2)
+  commissionPercent Decimal?       @db.Decimal(5, 2)
   latitude      Float?
   longitude     Float?
   address       String?

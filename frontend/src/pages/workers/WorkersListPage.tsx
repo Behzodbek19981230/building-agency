@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { workersService } from '@services/workers.service';
 import { Star, MapPin, CheckCircle } from 'lucide-react';
-import { SearchInput, Select, PageSpinner, Avatar, MoneyDisplay } from '@ui';
+import { SearchInput, Select, Avatar, Pagination, SkeletonWorkerPublicCard } from '@ui';
 import { getImageUrl } from '@/utils/image';
 
 const categoryOptions = [
@@ -41,7 +41,7 @@ export function WorkersListPage() {
 				search: search || undefined,
 				category: category || undefined,
 				page,
-				limit: 12,
+				limit: 10,
 			}),
 	});
 
@@ -73,7 +73,9 @@ export function WorkersListPage() {
 
 			{/* ─── Content ─── */}
 			{isLoading ? (
-				<PageSpinner label='Ustalar yuklanmoqda...' />
+				<div className='grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'>
+					{Array.from({ length: 8 }).map((_, i) => <SkeletonWorkerPublicCard key={i} />)}
+				</div>
 			) : workers.length === 0 ? (
 				<div className='text-center py-20 text-muted-foreground'>Ustalar topilmadi</div>
 			) : (
@@ -82,7 +84,7 @@ export function WorkersListPage() {
 						<Link
 							key={w.id}
 							to={`/workers/${w.id}`}
-							className='card p-5 hover:shadow-card-hover hover:-translate-y-0.5 transition-all block'
+							className='card p-5 hover:shadow-card-hover transition-shadow block'
 						>
 							<div className='flex items-center gap-3 mb-3'>
 								<div className='relative'>
@@ -120,45 +122,47 @@ export function WorkersListPage() {
 								</span>
 							</div>
 
-							{w.bio && (
-								<p className='text-xs text-muted-foreground line-clamp-2 mb-3'>{w.bio}</p>
-							)}
-
-							<div className='flex items-center justify-between text-xs text-muted-foreground'>
+							<div className='flex items-center justify-between text-xs text-muted-foreground mb-3'>
 								<div className='flex items-center gap-1'>
 									<MapPin className='w-3 h-3' /> {w.city || '—'}
 								</div>
 								<div>{w.completedProjects} loyiha</div>
 							</div>
 
-							{w.hourlyRate && (
-								<div className='mt-3 pt-3 border-t text-xs flex items-center justify-between'>
-									<span className='text-muted-foreground'>Soatlik:</span>
-									<MoneyDisplay amount={w.hourlyRate} size='sm' className='text-primary font-semibold' />
-								</div>
-							)}
+							{/* Services with sub-item prices */}
+							{(() => {
+								const allItems = (w.skills ?? []).flatMap((s: any) =>
+									(s.items ?? []).map((i: any) => ({ ...i, skillName: s.name }))
+								).slice(0, 4);
+								if (!allItems.length) return null;
+								return (
+									<div className='border-t divide-y divide-border mt-1'>
+										{allItems.map((item: any) => (
+											<div key={item.id} className='flex items-center justify-between py-1.5 gap-2'>
+												<span className='text-xs text-muted-foreground truncate'>{item.name}</span>
+												<span className='text-xs font-semibold text-primary whitespace-nowrap shrink-0'>
+													{Number(item.price).toLocaleString()} so'm
+												</span>
+											</div>
+										))}
+									</div>
+								);
+							})()}
 						</Link>
 					))}
 				</div>
 			)}
 
 			{/* ─── Pagination ─── */}
-			{meta && meta.totalPages > 1 && (
-				<div className='flex justify-center gap-2 mt-10'>
-					{Array.from({ length: Math.min(meta.totalPages, 10) }, (_, i) => i + 1).map((p) => (
-						<button
-							key={p}
-							onClick={() => setPage(p)}
-							className={`w-9 h-9 rounded-xl text-sm font-semibold transition-all ${
-								p === page
-									? 'bg-primary text-white shadow-sm'
-									: 'border border-border hover:bg-muted'
-							}`}
-						>
-							{p}
-						</button>
-					))}
-				</div>
+			{meta && (
+				<Pagination
+					page={page}
+					totalPages={meta.totalPages}
+					total={meta.total}
+					limit={10}
+					onChange={setPage}
+					className='mt-10'
+				/>
 			)}
 		</div>
 	);

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import { Card, CardBody, Button, StatusBadge, Avatar, Spinner, Select, Badge } from '@components/ui';
+import { Card, CardBody, StatusBadge, Select, Badge, Pagination, SkeletonTableRow } from '@components/ui';
 import { SearchInput } from '@components/ui';
 import { adminService } from '@services/admin.service';
 import type { User } from '@/types';
@@ -27,7 +28,7 @@ export function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const limit = 20;
+  const limit = 10;
 
   const fetchUsers = useCallback(() => {
     setLoading(true);
@@ -55,7 +56,16 @@ export function AdminUsersPage() {
     }
   };
 
+  const navigate = useNavigate();
   const totalPages = Math.ceil(total / limit);
+
+  const goToProfile = (user: User) => {
+    if (user.role === 'WORKER' && user.workerProfile?.id) {
+      navigate(`/workers/${user.workerProfile.id}`);
+    } else if (user.role === 'CLIENT') {
+      navigate(`/clients/${user.id}`);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -82,8 +92,8 @@ export function AdminUsersPage() {
       <Card>
         <CardBody className="p-0">
           {loading ? (
-            <div className="flex justify-center py-16">
-              <Spinner />
+            <div className="divide-y divide-border">
+              {Array.from({ length: 8 }).map((_, i) => <SkeletonTableRow key={i} />)}
             </div>
           ) : users.length === 0 ? (
             <p className="text-center text-muted-foreground py-16">Foydalanuvchi topilmadi</p>
@@ -91,11 +101,23 @@ export function AdminUsersPage() {
             <div className="divide-y divide-border">
               {users.map((user) => (
                 <div key={user.id} className="flex items-center gap-4 px-5 py-3">
-                  <Avatar
-                    src={getImageUrl(user.avatar)}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    size="sm"
-                  />
+                  <button
+                    onClick={() => goToProfile(user)}
+                    disabled={user.role === 'ADMIN'}
+                    className="shrink-0 disabled:cursor-default group"
+                  >
+                    {user.avatar ? (
+                      <img
+                        src={getImageUrl(user.avatar)}
+                        alt={`${user.firstName} ${user.lastName}`}
+                        className="w-9 h-9 rounded-xl object-cover ring-2 ring-transparent group-hover:ring-primary/40 transition-all group-disabled:group-hover:ring-transparent"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm ring-2 ring-transparent group-hover:ring-primary/40 transition-all group-disabled:group-hover:ring-transparent">
+                        {user.firstName?.[0]}{user.lastName?.[0]}
+                      </div>
+                    )}
+                  </button>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">
                       {user.firstName} {user.lastName}
@@ -128,29 +150,13 @@ export function AdminUsersPage() {
         </CardBody>
       </Card>
 
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Oldingi
-          </Button>
-          <span className="flex items-center px-3 text-sm text-muted-foreground">
-            {page} / {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Keyingi
-          </Button>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        limit={limit}
+        onChange={setPage}
+      />
     </div>
   );
 }

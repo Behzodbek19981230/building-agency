@@ -39,7 +39,7 @@ export class UsersService {
       where: { id },
       select: {
         id: true, firstName: true, lastName: true, avatar: true,
-        role: true, createdAt: true,
+        phone: true, role: true, createdAt: true,
       },
     });
     if (!user) throw new NotFoundException('User not found');
@@ -62,7 +62,7 @@ export class UsersService {
         orderBy: { createdAt: 'desc' },
         take: 20,
         include: {
-          reviewer: { select: { id: true, firstName: true, lastName: true, avatar: true } },
+          reviewer: { select: { id: true, firstName: true, lastName: true, avatar: true, workerProfile: { select: { id: true } } } },
           project: { select: { id: true, title: true } },
         },
       }),

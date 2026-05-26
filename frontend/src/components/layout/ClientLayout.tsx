@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { MobileBottomNav } from './MobileBottomNav';
-import { LayoutDashboard, FolderOpen, PlusCircle, CreditCard, MessageSquare, Bell } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, PlusCircle, CreditCard, MessageSquare, Bell, Settings } from 'lucide-react';
 import { useNotificationStore } from '@store/notificationStore';
 import { useChatStore } from '@store/chatStore';
 
@@ -13,6 +13,7 @@ const clientNavItems = [
 	{ label: "To'lovlar", href: '/client/payments', icon: CreditCard },
 	{ label: 'Xabarlar', href: '/client/chat', icon: MessageSquare },
 	{ label: 'Bildirishnomalar', href: '/client/notifications', icon: Bell },
+	{ label: 'Sozlamalar', href: '/client/settings', icon: Settings },
 ];
 
 const mobileNavItems = [
@@ -20,7 +21,7 @@ const mobileNavItems = [
 	{ label: 'Loyihalar', href: '/client/projects', icon: FolderOpen },
 	{ label: 'Yangi', href: '/client/projects/create', icon: PlusCircle },
 	{ label: 'Chat', href: '/client/chat', icon: MessageSquare },
-	{ label: 'Xabarlar', href: '/client/notifications', icon: Bell },
+	{ label: 'Sozlamalar', href: '/client/settings', icon: Settings },
 ];
 
 export function ClientLayout() {
@@ -34,7 +35,7 @@ export function ClientLayout() {
 	});
 
 	return (
-		<div className='min-h-screen bg-surface-50'>
+		<div className='min-h-screen bg-surface-50 pt-16'>
 			<Navbar />
 			<div className='flex'>
 				<Sidebar items={clientNavItems} basePath='/client' />

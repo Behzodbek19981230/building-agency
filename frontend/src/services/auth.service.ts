@@ -29,4 +29,12 @@ export const authService = {
     api.post('/auth/change-password', { currentPassword, newPassword }),
 
   getMe: () => api.get('/auth/me'),
+
+  uploadAvatar: (formData: FormData) =>
+    api.post('/users/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+
+  updateProfile: (data: { firstName?: string; lastName?: string; phone?: string }) =>
+    api.put('/users/profile', data),
 };

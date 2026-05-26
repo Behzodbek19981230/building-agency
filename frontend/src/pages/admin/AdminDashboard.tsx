@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Users, HardHat, FolderOpen, DollarSign, Activity, AlertTriangle, Clock } from 'lucide-react';
+import { Users, HardHat, FolderOpen, DollarSign, Activity, Clock } from 'lucide-react';
 import { Card, CardBody, Spinner, StatusBadge } from '@components/ui';
 import { adminService } from '@services/admin.service';
 
@@ -10,7 +10,6 @@ interface DashboardStats {
   totalRevenue: number;
   activeProjects: number;
   pendingVerifications: number;
-  openDisputes: number;
 }
 
 interface RecentProject {
@@ -35,13 +34,13 @@ function StatCard({
 }) {
   return (
     <Card>
-      <CardBody className="flex items-center gap-4 p-5">
-        <div className={`p-3 rounded-xl ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
+      <CardBody className="flex items-center gap-3 p-3 md:p-5">
+        <div className={`p-2.5 md:p-3 rounded-xl shrink-0 ${color}`}>
+          <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
         </div>
-        <div>
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="text-2xl font-bold">{value}</p>
+        <div className="min-w-0">
+          <p className="text-xs md:text-sm text-muted-foreground truncate">{label}</p>
+          <p className="text-lg md:text-2xl font-bold truncate">{value}</p>
         </div>
       </CardBody>
     </Card>
@@ -87,7 +86,6 @@ export function AdminDashboard() {
             value={stats.pendingVerifications}
             color="bg-amber-500"
           />
-          <StatCard icon={AlertTriangle} label="Ochiq nizolar" value={stats.openDisputes} color="bg-red-500" />
         </div>
       )}
 

@@ -10,7 +10,7 @@ import { getImageUrl } from '@/utils/image';
 import {
   Star, MapPin, CheckCircle, Briefcase, Award, Loader2, ArrowLeft,
   MessageSquare, Calendar, Clock, AlertCircle, FolderOpen,
-  ImagePlus, X, Send, ChevronDown, ChevronUp,
+  ImagePlus, X, Send, ChevronDown, ChevronUp, Phone,
 } from 'lucide-react';
 
 /* ─── helpers ─────────────────────────────────────── */
@@ -358,29 +358,29 @@ export function WorkerDetailPage() {
         <div className="lg:col-span-2 space-y-6">
 
           {/* Profile header */}
-          <div className="card p-6">
-            <div className="flex items-start gap-4">
-              <div className="relative">
+          <div className="card p-4 md:p-6">
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="relative shrink-0">
                 <img
                   src={
                     getImageUrl(worker.user?.avatar) ||
                     `https://ui-avatars.com/api/?name=${worker.user?.firstName}&size=80&background=3b82f6&color=fff`
                   }
                   alt=""
-                  className="w-20 h-20 rounded-2xl object-cover"
+                  className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover"
                 />
                 {worker.isVerified && (
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-4 h-4 text-white" />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-white" />
                   </div>
                 )}
               </div>
-              <div className="flex-1">
-                <h1 className="text-xl font-bold">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg md:text-xl font-bold truncate">
                   {worker.user?.firstName} {worker.user?.lastName}
                 </h1>
-                <p className="text-muted-foreground">{worker.category}</p>
-                <div className="flex items-center gap-3 mt-2">
+                <p className="text-muted-foreground text-sm">{worker.category}</p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
                   <button
                     onClick={scrollToReviews}
                     className="flex items-center gap-1 group"
@@ -388,20 +388,20 @@ export function WorkerDetailPage() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${
+                        className={`w-3.5 h-3.5 md:w-4 md:h-4 ${
                           i < Math.round(worker.rating)
                             ? 'text-amber-400 fill-current'
                             : 'text-gray-200'
                         }`}
                       />
                     ))}
-                    <span className="text-sm ml-1 text-primary underline underline-offset-2 group-hover:text-primary/80 transition-colors">
+                    <span className="text-xs md:text-sm ml-1 text-primary underline underline-offset-2 group-hover:text-primary/80 transition-colors whitespace-nowrap">
                       {worker.rating?.toFixed(1)} ({worker.reviewCount} sharh)
                     </span>
                   </button>
                   {worker.city && (
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <MapPin className="w-3.5 h-3.5" /> {worker.city}
+                    <div className="flex items-center gap-1 text-xs md:text-sm text-muted-foreground">
+                      <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 shrink-0" /> {worker.city}
                     </div>
                   )}
                 </div>
@@ -409,10 +409,10 @@ export function WorkerDetailPage() {
             </div>
 
             {worker.bio && (
-              <p className="mt-4 text-muted-foreground leading-relaxed">{worker.bio}</p>
+              <p className="mt-4 text-sm md:text-base text-muted-foreground leading-relaxed">{worker.bio}</p>
             )}
 
-            <div className="grid grid-cols-3 gap-4 mt-5 pt-5 border-t">
+            <div className="grid grid-cols-3 gap-2 md:gap-4 mt-5 pt-5 border-t">
               {[
                 { icon: Briefcase, label: 'Bajarilgan', value: worker.completedProjects },
                 { icon: Award,     label: 'Tajriba',    value: `${worker.experience} yil` },
@@ -421,8 +421,8 @@ export function WorkerDetailPage() {
                 const Icon = s.icon;
                 return (
                   <div key={s.label} className="text-center">
-                    <Icon className="w-5 h-5 mx-auto mb-1 text-primary" />
-                    <div className="font-bold">{s.value}</div>
+                    <Icon className="w-4 h-4 md:w-5 md:h-5 mx-auto mb-1 text-primary" />
+                    <div className="font-bold text-sm md:text-base">{s.value}</div>
                     <div className="text-xs text-muted-foreground">{s.label}</div>
                   </div>
                 );
@@ -473,7 +473,7 @@ export function WorkerDetailPage() {
                           {urgency.label}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
                         {project.startDate && (
                           <div className="flex items-center gap-1.5 text-muted-foreground">
                             <Calendar className="w-3.5 h-3.5 shrink-0" />
@@ -516,18 +516,35 @@ export function WorkerDetailPage() {
             )}
           </div>
 
-          {/* Skills */}
+          {/* Services & Prices */}
           {worker.skills?.length > 0 && (
-            <div className="card p-5">
-              <h2 className="font-semibold mb-3">Ko'nikmalar</h2>
-              <div className="flex flex-wrap gap-2">
+            <div className="card p-5 space-y-4">
+              <h2 className="font-semibold">Xizmatlar va narxlar</h2>
+              <div className="space-y-3">
                 {worker.skills.map((s: any) => (
-                  <span
-                    key={s.id}
-                    className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full"
-                  >
-                    {s.name}
-                  </span>
+                  <div key={s.id} className="rounded-xl border border-border overflow-hidden">
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-surface-50 border-b border-border">
+                      <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                      <span className="font-medium text-sm">{s.name}</span>
+                    </div>
+                    {s.items?.length > 0 ? (
+                      <div className="divide-y divide-border">
+                        {s.items.map((item: any) => (
+                          <div key={item.id} className="flex items-center justify-between px-4 py-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
+                              <span className="text-sm text-muted-foreground">{item.name}</span>
+                            </div>
+                            <span className="text-sm font-semibold text-primary whitespace-nowrap">
+                              {Number(item.price).toLocaleString()} so'm
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="px-4 py-2.5 text-xs text-muted-foreground">Narx belgilanmagan</p>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
@@ -648,22 +665,36 @@ export function WorkerDetailPage() {
 
           {/* Rates & actions */}
           <div className="card p-5 space-y-3">
-            {worker.hourlyRate && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Soatlik narx</span>
-                <span className="font-semibold">{Number(worker.hourlyRate).toLocaleString()} so'm</span>
-              </div>
+            {worker.user?.phone && (
+              <a
+                href={`tel:${worker.user.phone}`}
+                className="flex items-center gap-2.5 text-sm font-medium text-primary hover:underline"
+              >
+                <Phone className="w-4 h-4 shrink-0" />
+                {worker.user.phone}
+              </a>
             )}
-            {worker.dailyRate && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Kunlik narx</span>
-                <span className="font-semibold">{Number(worker.dailyRate).toLocaleString()} so'm</span>
-              </div>
-            )}
-            {worker.minProjectBudget && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Min. loyiha</span>
-                <span className="font-semibold">{Number(worker.minProjectBudget).toLocaleString()} so'm</span>
+
+            {(worker.hourlyRate || worker.dailyRate || worker.minProjectBudget) && (
+              <div className={`space-y-2 ${worker.user?.phone ? 'pt-3 border-t' : ''}`}>
+                {worker.hourlyRate && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Soatlik narx</span>
+                    <span className="font-semibold">{Number(worker.hourlyRate).toLocaleString()} so'm</span>
+                  </div>
+                )}
+                {worker.dailyRate && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Kunlik narx</span>
+                    <span className="font-semibold">{Number(worker.dailyRate).toLocaleString()} so'm</span>
+                  </div>
+                )}
+                {worker.minProjectBudget && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Min. loyiha</span>
+                    <span className="font-semibold">{Number(worker.minProjectBudget).toLocaleString()} so'm</span>
+                  </div>
+                )}
               </div>
             )}
 

@@ -18,7 +18,7 @@ export function Sidebar({ items, basePath }: Props) {
 	const location = useLocation();
 
 	return (
-		<aside className='w-60 xl:w-64 min-h-[calc(100vh-4rem)] bg-white border-r border-border hidden lg:flex flex-col'>
+		<aside className='w-60 xl:w-64 sticky top-16 h-[calc(100vh-4rem)] bg-white border-r border-border hidden lg:flex flex-col'>
 			<nav className='flex-1 p-3 space-y-0.5'>
 				{items.map((item) => {
 					const Icon = item.icon;

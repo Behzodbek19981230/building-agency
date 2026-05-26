@@ -24,20 +24,32 @@ export class WorkersService {
         userId,
         ...profileData,
         skills: skills
-          ? { create: skills.map((name) => ({ name })) }
+          ? {
+              create: skills.map((s) => ({
+                name: s.name,
+                items: s.items?.length
+                  ? { create: s.items.map((i) => ({ name: i.name, price: i.price })) }
+                  : undefined,
+              })),
+            }
           : undefined,
       },
-      include: { skills: true, user: { select: { id: true, firstName: true, lastName: true, avatar: true, email: true } } },
+      include: {
+        skills: { include: { items: true } },
+        user: { select: { id: true, firstName: true, lastName: true, avatar: true, email: true } },
+      },
     });
 
     return { data: profile, message: 'Worker profile created' };
   }
 
   async findAll(query: WorkerQueryDto) {
-    const { page = 1, limit = 12, search, category, city, minRating, isVerified, maxRate, sortBy = 'rating', sortOrder = 'desc' } = query;
+    const { page = 1, limit = 10, search, category, city, minRating, isVerified, maxRate, sortBy = 'rating', sortOrder = 'desc', status } = query;
     const skip = (page - 1) * limit;
 
-    const where: any = { verificationStatus: 'VERIFIED', status: { not: 'OFFLINE' } };
+    const where: any = status
+      ? { verificationStatus: 'VERIFIED', status }
+      : { verificationStatus: 'VERIFIED', status: { not: 'OFFLINE' } };
 
     if (search) {
       where.OR = [
@@ -63,7 +75,7 @@ export class WorkersService {
         orderBy: { [sortBy]: sortOrder },
         include: {
           user: { select: { id: true, firstName: true, lastName: true, avatar: true } },
-          skills: true,
+          skills: { include: { items: true } },
           portfolio: { take: 3, select: { id: true, title: true, images: true } },
         },
       }),
@@ -79,8 +91,8 @@ export class WorkersService {
     const profile = await this.prisma.workerProfile.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, firstName: true, lastName: true, avatar: true, createdAt: true } },
-        skills: true,
+        user: { select: { id: true, firstName: true, lastName: true, avatar: true, phone: true, createdAt: true } },
+        skills: { include: { items: true } },
         portfolio: { orderBy: { createdAt: 'desc' } },
         availability: true,
       },
@@ -111,7 +123,12 @@ export class WorkersService {
   async findByUserId(userId: string) {
     const profile = await this.prisma.workerProfile.findUnique({
       where: { userId },
-      include: { skills: true, portfolio: true, availability: true, user: { select: { id: true, firstName: true, lastName: true, avatar: true, email: true } } },
+      include: {
+        skills: { include: { items: true } },
+        portfolio: true,
+        availability: true,
+        user: { select: { id: true, firstName: true, lastName: true, avatar: true, email: true } },
+      },
     });
 
     if (!profile) throw new NotFoundException('Worker profile not found');
@@ -127,14 +144,22 @@ export class WorkersService {
     const updated = await this.prisma.workerProfile.update({
       where: { userId },
       data: profileData,
-      include: { skills: true },
+      include: { skills: { include: { items: true } } },
     });
 
     if (skills) {
       await this.prisma.workerSkill.deleteMany({ where: { workerProfileId: profile.id } });
-      await this.prisma.workerSkill.createMany({
-        data: skills.map((name) => ({ workerProfileId: profile.id, name })),
-      });
+      for (const s of skills) {
+        await this.prisma.workerSkill.create({
+          data: {
+            workerProfileId: profile.id,
+            name: s.name,
+            items: s.items?.length
+              ? { create: s.items.map((i) => ({ name: i.name, price: i.price })) }
+              : undefined,
+          },
+        });
+      }
     }
 
     return { data: updated, message: 'Profile updated' };

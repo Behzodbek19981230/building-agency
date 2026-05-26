@@ -145,6 +145,14 @@ export class ProjectsService {
     }
 
     await this.prisma.project.update({ where: { id }, data: { status: 'CANCELLED' } });
+
+    if (project.assignedWorkerId) {
+      await this.prisma.workerProfile.updateMany({
+        where: { userId: project.assignedWorkerId },
+        data: { status: 'AVAILABLE' },
+      });
+    }
+
     return { message: 'Project cancelled' };
   }
 
@@ -208,6 +216,13 @@ export class ProjectsService {
       where: { id: projectId },
       data: { status: 'COMPLETED' },
     });
+
+    if (project.assignedWorkerId) {
+      await this.prisma.workerProfile.updateMany({
+        where: { userId: project.assignedWorkerId },
+        data: { status: 'AVAILABLE' },
+      });
+    }
 
     return { message: 'Project marked as completed' };
   }

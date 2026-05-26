@@ -41,17 +41,17 @@ export function WorkerDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Salom, {user?.firstName}! 👷</h1>
-          <p className="text-muted-foreground mt-1">Ustaning boshqaruv paneli</p>
+          <h1 className="text-xl md:text-2xl font-bold">Salom, {user?.firstName}! 👷</h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">Ustaning boshqaruv paneli</p>
         </div>
 
         <button
           onClick={toggleStatus}
           disabled={statusLoading}
           className={clsx(
-            'flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors',
+            'flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg font-medium text-sm transition-colors shrink-0',
             profile?.status === 'AVAILABLE'
               ? 'bg-green-100 text-green-700 hover:bg-green-200'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
@@ -86,12 +86,12 @@ export function WorkerDashboard() {
           ].map((s) => {
             const Icon = s.icon;
             return (
-              <div key={s.label} className="card p-5">
-                <div className={clsx('w-10 h-10 rounded-xl flex items-center justify-center mb-3', s.color)}>
-                  <Icon className="w-5 h-5" />
+              <div key={s.label} className="card p-3 md:p-5">
+                <div className={clsx('w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center mb-2 md:mb-3', s.color)}>
+                  <Icon className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <div className="text-2xl font-bold">{s.value}{s.suffix}</div>
-                <div className="text-sm text-muted-foreground">{s.label}</div>
+                <div className="text-base md:text-2xl font-bold truncate">{s.value}{s.suffix}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">{s.label}</div>
               </div>
             );
           })}

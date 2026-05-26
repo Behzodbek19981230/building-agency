@@ -51,9 +51,9 @@ function buildStyles<O extends SelectOption>(
 	return {
 		control: (base, state) => ({
 			...base,
-			height: '44px',
-			minHeight: '44px',
-			borderRadius: '12px',
+			height: '36px',
+			minHeight: '36px',
+			borderRadius: '10px',
 			borderColor: hasError
 				? 'hsl(var(--destructive))'
 				: state.isFocused
@@ -71,18 +71,18 @@ function buildStyles<O extends SelectOption>(
 		}),
 		valueContainer: (base) => ({
 			...base,
-			padding: '0 16px',
-			fontSize: '14px',
+			padding: '0 12px',
+			fontSize: '13px',
 		}),
 		placeholder: (base) => ({
 			...base,
 			color: 'hsl(var(--muted-foreground) / 0.6)',
-			fontSize: '14px',
+			fontSize: '13px',
 		}),
 		singleValue: (base) => ({
 			...base,
 			color: 'hsl(var(--foreground))',
-			fontSize: '14px',
+			fontSize: '13px',
 			fontWeight: '500',
 		}),
 		multiValue: (base) => ({
@@ -109,12 +109,12 @@ function buildStyles<O extends SelectOption>(
 		indicatorSeparator: () => ({ display: 'none' }),
 		indicatorsContainer: (base) => ({
 			...base,
-			paddingRight: '12px',
-			gap: '4px',
+			paddingRight: '8px',
+			gap: '2px',
 		}),
 		menu: (base) => ({
 			...base,
-			borderRadius: '16px',
+			borderRadius: '12px',
 			border: '1px solid hsl(var(--border))',
 			boxShadow: '0 10px 40px -4px rgb(0 0 0 / 0.12), 0 0 0 1px rgb(0 0 0 / 0.04)',
 			overflow: 'hidden',
@@ -124,14 +124,14 @@ function buildStyles<O extends SelectOption>(
 		}),
 		menuList: (base) => ({
 			...base,
-			padding: '6px',
-			maxHeight: '240px',
+			padding: '4px',
+			maxHeight: '220px',
 		}),
 		option: (base, state) => ({
 			...base,
-			borderRadius: '10px',
-			padding: '10px 12px',
-			fontSize: '14px',
+			borderRadius: '8px',
+			padding: '7px 10px',
+			fontSize: '13px',
 			fontWeight: state.isSelected ? '600' : '400',
 			backgroundColor: state.isSelected
 				? 'hsl(var(--primary) / 0.1)'
@@ -149,19 +149,19 @@ function buildStyles<O extends SelectOption>(
 		}),
 		noOptionsMessage: (base) => ({
 			...base,
-			fontSize: '14px',
+			fontSize: '13px',
 			color: 'hsl(var(--muted-foreground))',
-			padding: '12px',
+			padding: '8px',
 		}),
 		loadingMessage: (base) => ({
 			...base,
-			fontSize: '14px',
+			fontSize: '13px',
 			color: 'hsl(var(--muted-foreground))',
 		}),
 		input: (base) => ({
 			...base,
 			color: 'hsl(var(--foreground))',
-			fontSize: '14px',
+			fontSize: '13px',
 		}),
 	};
 }

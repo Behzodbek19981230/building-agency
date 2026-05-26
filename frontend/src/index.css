@@ -105,7 +105,7 @@
   }
 
   .card-hover {
-    @apply card hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer transition-all duration-200;
+    @apply card hover:shadow-card-hover cursor-pointer transition-shadow duration-200;
   }
 
   .card-glass {

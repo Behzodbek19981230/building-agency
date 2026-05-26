@@ -2,8 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { projectsService } from '@services/projects.service';
-import { Search, Filter, MapPin, Clock, DollarSign, Loader2 } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, DollarSign } from 'lucide-react';
 import { clsx } from 'clsx';
+import { Pagination, SkeletonProjectCard } from '@components/ui';
 import { getImageUrl } from '@/utils/image';
 
 const urgencyLabels: Record<string, { label: string; color: string }> = {
@@ -19,7 +20,7 @@ export function ProjectsListPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['projects', search, page],
-    queryFn: () => projectsService.getAll({ search: search || undefined, page, limit: 12 }),
+    queryFn: () => projectsService.getAll({ search: search || undefined, page, limit: 10 }),
   });
 
   const projects = data?.data?.data || [];
@@ -45,7 +46,9 @@ export function ProjectsListPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => <SkeletonProjectCard key={i} />)}
+        </div>
       ) : projects.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">Loyihalar topilmadi</div>
       ) : (
@@ -53,9 +56,9 @@ export function ProjectsListPage() {
           {projects.map((p: any) => {
             const u = urgencyLabels[p.urgency] || { label: p.urgency, color: 'bg-gray-100 text-gray-600' };
             return (
-              <Link key={p.id} to={`/projects/${p.id}`} className="card overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group">
+              <Link key={p.id} to={`/projects/${p.id}`} className="card overflow-hidden hover:shadow-md transition-shadow group">
                 {p.images?.[0] ? (
-                  <img src={getImageUrl(p.images[0].url)} alt={p.title} className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <img src={getImageUrl(p.images[0].url)} alt={p.title} className="w-full h-44 object-cover" />
                 ) : (
                   <div className="w-full h-44 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                     <span className="text-4xl">🏗️</span>
@@ -87,18 +90,15 @@ export function ProjectsListPage() {
         </div>
       )}
 
-      {meta && meta.totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-10">
-          {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={clsx('w-9 h-9 rounded-lg text-sm font-medium transition-colors', p === page ? 'bg-primary text-white' : 'border hover:bg-muted')}
-            >
-              {p}
-            </button>
-          ))}
-        </div>
+      {meta && (
+        <Pagination
+          page={page}
+          totalPages={meta.totalPages}
+          total={meta.total}
+          limit={10}
+          onChange={setPage}
+          className="mt-10"
+        />
       )}
     </div>
   );

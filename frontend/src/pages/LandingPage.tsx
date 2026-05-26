@@ -132,10 +132,6 @@ const faqs = [
 		a: "Ro'yxatdan o'tish sahifasida 'Usta sifatida' variantini tanlang, profil to'ldiring va moderatsiya orqali tasdiqlaning.",
 	},
 	{
-		q: 'Nizo yuzaga kelsa nima qilaman?',
-		a: "Ilovada 'Nizo ochish' tugmasi orqali muammoni bildiring. Admin jamoasi 24 soat ichida ko'rib chiqadi.",
-	},
-	{
 		q: 'Qaysi shaharlarda ishlaydi?',
 		a: "Hozirda O'zbekistonning barcha viloyatlari va yirik shaharlarida faoliyat yuritamiz.",
 	},
@@ -208,7 +204,7 @@ export function LandingPage() {
 					<div className='grid lg:grid-cols-[1fr_440px] gap-6 md:gap-12 items-center'>
 						{/* ── Left ───────────────────────────────── */}
 						<div className='pb-10 md:pb-14'>
-							<h1 className='text-[2.15rem] sm:text-5xl md:text-[3.25rem] font-black leading-[1.1] text-foreground mb-4'>
+							<h1 className='text-2xl sm:text-5xl md:text-[3.25rem] font-black leading-[1.15] text-foreground mb-4'>
 								Qurilish va ta'mirlash
 								<br />
 								ustasini — <span className='text-primary'>tez va</span>
@@ -216,7 +212,7 @@ export function LandingPage() {
 								ishonchli toping
 							</h1>
 
-							<p className='text-muted-foreground text-base md:text-lg mb-8'>
+							<p className='text-muted-foreground text-sm md:text-lg mb-8'>
 								Tekshirilgan elektrik, santexnik, quruvchi va boshqa ustalar — bir platformada. Xavfsiz
 								to'lov kafolatlanadi.
 							</p>
@@ -235,9 +231,10 @@ export function LandingPage() {
 								/>
 								<button
 									type='submit'
-									className='shrink-0 m-1.5 bg-primary hover:bg-primary/90 active:scale-95 text-white font-bold text-xs md:text-sm px-5 md:px-7 py-3 rounded-full transition-all whitespace-nowrap uppercase tracking-wide'
+									className='shrink-0 m-1.5 bg-primary hover:bg-primary/90 active:scale-95 text-white font-bold text-xs md:text-sm px-4 md:px-7 py-3 rounded-full transition-all whitespace-nowrap uppercase tracking-wide'
 								>
-									Usta topish
+									<span className='hidden sm:inline'>Usta topish</span>
+									<span className='sm:hidden'>Topish</span>
 								</button>
 							</form>
 						</div>
@@ -310,14 +307,14 @@ export function LandingPage() {
 							return (
 								<div
 									key={s.label}
-									className='flex items-center gap-4 px-6 py-5 sm:py-3 sm:justify-center'
+									className='flex items-center gap-3 px-4 sm:px-6 py-4 sm:py-3 sm:justify-center'
 								>
-									<Icon className='w-9 h-9 text-primary shrink-0' />
+									<Icon className='w-8 h-8 sm:w-9 sm:h-9 text-primary shrink-0' />
 									<div>
-										<p className='text-3xl md:text-4xl font-black text-primary leading-none'>
+										<p className='text-2xl sm:text-3xl md:text-4xl font-black text-primary leading-none'>
 											{s.value}
 										</p>
-										<p className='text-sm text-muted-foreground mt-1 leading-snug max-w-[180px]'>
+										<p className='text-xs sm:text-sm text-muted-foreground mt-1 leading-snug'>
 											{s.label}
 										</p>
 									</div>
@@ -348,7 +345,7 @@ export function LandingPage() {
 							<Link
 								key={cat.slug}
 								to={`/workers?category=${cat.slug}`}
-								className='group bg-white rounded-2xl border border-border p-4 md:p-5 hover:border-primary/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-200'
+								className='group bg-white rounded-2xl border border-border p-4 md:p-5 hover:border-primary/40 hover:shadow-lg transition-shadow duration-200'
 							>
 								<div className='flex items-start gap-3 mb-3'>
 									<div className='w-10 h-10 md:w-11 md:h-11 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors'>
@@ -540,7 +537,7 @@ export function LandingPage() {
 							return (
 								<div
 									key={f.title}
-									className='bg-white rounded-2xl border border-border p-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200'
+									className='bg-white rounded-2xl border border-border p-6 hover:shadow-md transition-shadow duration-200'
 								>
 									<div className='w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center mb-4'>
 										<Icon className='w-5 h-5 text-primary' />
@@ -645,7 +642,7 @@ export function LandingPage() {
 					</div>
 
 					{/* mini trust */}
-					<div className='flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-sm text-white/60'>
+					<div className='flex flex-col sm:flex-row flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-xs sm:text-sm text-white/60 items-center'>
 						<span className='flex items-center gap-1.5'>
 							<CheckCircle2 className='w-4 h-4 text-white/80' /> Bepul ro'yxatdan o'tish
 						</span>

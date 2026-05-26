@@ -26,3 +26,7 @@ export { Spinner, PageSpinner } from './Spinner';
 export { Avatar } from './Avatar';
 
 export { ConfirmModal } from './ConfirmModal';
+
+export { Pagination } from './Pagination';
+
+export { Skeleton, SkeletonTableRow, SkeletonProjectRow, SkeletonWorkerCard, SkeletonWorkerPublicCard, SkeletonProjectCard } from './Skeleton';

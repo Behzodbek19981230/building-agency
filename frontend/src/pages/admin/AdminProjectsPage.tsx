@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { UserPlus, X, Search, Check } from 'lucide-react';
-import { Card, CardBody, Button, StatusBadge, Spinner, Badge, Select, Input, MoneyInput, Avatar } from '@components/ui';
+import { Card, CardBody, Button, StatusBadge, Badge, Select, Input, MoneyInput, Avatar, Pagination, SkeletonProjectRow, Spinner } from '@components/ui';
 import { adminService } from '@services/admin.service';
 import type { Project } from '@/types';
 import { getImageUrl } from '@/utils/image';
@@ -43,9 +43,16 @@ function AssignWorkerModal({ project, onClose, onAssigned }: AssignModalProps) {
   const [workers, setWorkers] = useState<WorkerOption[]>([]);
   const [loadingWorkers, setLoadingWorkers] = useState(false);
   const [selected, setSelected] = useState<WorkerOption | null>(null);
-  const [finalPrice, setFinalPrice] = useState<string>('');
+  const [finalPrice, setFinalPrice] = useState(0);
+  const [commissionPercent, setCommissionPercent] = useState('15');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const searchTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  const priceNum = finalPrice || 0;
+  const commNum = Math.min(100, Math.max(0, Number(commissionPercent) || 0));
+  const commissionAmount = priceNum * commNum / 100;
+  const netAmount = priceNum - commissionAmount;
 
   const fetchWorkers = useCallback((q: string) => {
     setLoadingWorkers(true);
@@ -62,16 +69,16 @@ function AssignWorkerModal({ project, onClose, onAssigned }: AssignModalProps) {
   }, [search, fetchWorkers]);
 
   const handleAssign = async () => {
-    if (!selected) return;
+    setError('');
+    if (!selected) { setError("Usta tanlanmagan"); return; }
+    if (!priceNum || priceNum <= 0) { setError("Kelishilgan summani kiriting"); return; }
     setSubmitting(true);
     try {
-      await adminService.assignWorkerToProject(
-        project.id,
-        selected.user.id,
-        finalPrice ? Number(finalPrice) : undefined,
-      );
+      await adminService.assignWorkerToProject(project.id, selected.user.id, priceNum, commNum);
       onAssigned(project.id);
       onClose();
+    } catch (e: any) {
+      setError(e?.response?.data?.message ?? 'Xatolik yuz berdi');
     } finally {
       setSubmitting(false);
     }
@@ -81,6 +88,7 @@ function AssignWorkerModal({ project, onClose, onAssigned }: AssignModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-background rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border">
           <div className="min-w-0">
@@ -107,11 +115,9 @@ function AssignWorkerModal({ project, onClose, onAssigned }: AssignModalProps) {
         </div>
 
         {/* Worker list */}
-        <div className="flex-1 overflow-y-auto divide-y divide-border">
+        <div className="flex-1 overflow-y-auto divide-y divide-border min-h-0">
           {loadingWorkers ? (
-            <div className="flex justify-center py-10">
-              <Spinner />
-            </div>
+            <div className="flex justify-center py-10"><Spinner /></div>
           ) : workers.length === 0 ? (
             <p className="text-center text-muted-foreground py-10">Usta topilmadi</p>
           ) : (
@@ -120,59 +126,79 @@ function AssignWorkerModal({ project, onClose, onAssigned }: AssignModalProps) {
                 key={w.id}
                 onClick={() => setSelected(selected?.id === w.id ? null : w)}
                 className={`w-full flex items-center gap-3 px-5 py-3 text-left transition-colors ${
-                  selected?.id === w.id
-                    ? 'bg-primary/10 border-l-4 border-primary'
-                    : 'hover:bg-surface-100'
+                  selected?.id === w.id ? 'bg-primary/10 border-l-4 border-primary' : 'hover:bg-surface-100'
                 }`}
               >
-                <Avatar
-                  src={getImageUrl(w.user.avatar)}
-                  alt={`${w.user.firstName} ${w.user.lastName}`}
-                  size="sm"
-                />
+                <Avatar src={getImageUrl(w.user.avatar)} alt={`${w.user.firstName} ${w.user.lastName}`} size="sm" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm">
-                    {w.user.firstName} {w.user.lastName}
-                  </p>
+                  <p className="font-medium text-sm">{w.user.firstName} {w.user.lastName}</p>
                   <p className="text-xs text-muted-foreground">
                     {categoryLabels[w.category] ?? w.category}
                     {w.city ? ` · ${w.city}` : ''}
                     {` · ⭐ ${w.rating.toFixed(1)}`}
                   </p>
                 </div>
-                {w.isVerified && (
-                  <Badge variant="success" className="shrink-0">Tasdiqlangan</Badge>
-                )}
-                {selected?.id === w.id && (
-                  <Check className="w-4 h-4 text-primary shrink-0" />
-                )}
+                {w.isVerified && <Badge variant="success" className="shrink-0">Tasdiqlangan</Badge>}
+                {selected?.id === w.id && <Check className="w-4 h-4 text-primary shrink-0" />}
               </button>
             ))
           )}
         </div>
 
-        {/* Final price + submit */}
+        {/* Price + commission + submit */}
         <div className="p-4 border-t border-border space-y-3">
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">
-              Yakuniy narx (ixtiyoriy)
-            </label>
-            <MoneyInput
-              value={finalPrice}
-              onChange={(e) => setFinalPrice(e.target.value)}
-              placeholder="0"
-            />
+          {/* Inputs row */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Kelishilgan summa <span className="text-red-500">*</span>
+              </label>
+              <MoneyInput
+                value={finalPrice}
+                onChange={(raw) => setFinalPrice(raw)}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Komissiya %</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  className="input pr-7"
+                  placeholder="15"
+                  value={commissionPercent}
+                  onChange={(e) => setCommissionPercent(e.target.value)}
+                  min={0}
+                  max={100}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
+              </div>
+            </div>
           </div>
+
+          {/* Commission preview */}
+          {priceNum > 0 && (
+            <div className="rounded-xl bg-surface-50 border border-border p-3 grid grid-cols-3 gap-2 text-center text-xs">
+              <div>
+                <p className="text-muted-foreground mb-0.5">Kelishilgan summa</p>
+                <p className="font-semibold">{priceNum.toLocaleString()} so'm</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5">Platforma ({commNum}%)</p>
+                <p className="font-semibold text-amber-600">{commissionAmount.toLocaleString()} so'm</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5">Ustaga tushadi</p>
+                <p className="font-semibold text-emerald-600">{netAmount.toLocaleString()} so'm</p>
+              </div>
+            </div>
+          )}
+
+          {error && <p className="text-xs text-red-500 text-center">{error}</p>}
+
           <div className="flex gap-2">
-            <Button variant="outline" fullWidth onClick={onClose}>
-              Bekor qilish
-            </Button>
-            <Button
-              fullWidth
-              disabled={!selected}
-              loading={submitting}
-              onClick={handleAssign}
-            >
+            <Button variant="outline" fullWidth onClick={onClose}>Bekor qilish</Button>
+            <Button fullWidth disabled={!selected || !priceNum} loading={submitting} onClick={handleAssign}>
               Biriktirish
             </Button>
           </div>
@@ -189,7 +215,7 @@ export function AdminProjectsPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [assignProject, setAssignProject] = useState<Project | null>(null);
-  const limit = 20;
+  const limit = 10;
 
   const fetchProjects = useCallback(() => {
     setLoading(true);
@@ -233,8 +259,8 @@ export function AdminProjectsPage() {
       <Card>
         <CardBody className="p-0">
           {loading ? (
-            <div className="flex justify-center py-16">
-              <Spinner />
+            <div className="divide-y divide-border">
+              {Array.from({ length: 8 }).map((_, i) => <SkeletonProjectRow key={i} />)}
             </div>
           ) : projects.length === 0 ? (
             <p className="text-center text-muted-foreground py-16">Loyihalar topilmadi</p>
@@ -281,19 +307,13 @@ export function AdminProjectsPage() {
         </CardBody>
       </Card>
 
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
-          <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-            Oldingi
-          </Button>
-          <span className="flex items-center px-3 text-sm text-muted-foreground">
-            {page} / {totalPages}
-          </span>
-          <Button variant="outline" size="sm" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
-            Keyingi
-          </Button>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        limit={limit}
+        onChange={setPage}
+      />
 
       {assignProject && (
         <AssignWorkerModal

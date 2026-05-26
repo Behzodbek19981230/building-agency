@@ -74,9 +74,10 @@ export class AdminController {
   assignWorker(
     @Param('id') projectId: string,
     @Body('workerUserId') workerUserId: string,
-    @Body('finalPrice') finalPrice?: number,
+    @Body('finalPrice') finalPrice: number,
+    @Body('commissionPercent') commissionPercent: number,
   ) {
-    return this.adminService.assignWorkerToProject(projectId, workerUserId, finalPrice);
+    return this.adminService.assignWorkerToProject(projectId, workerUserId, Number(finalPrice), Number(commissionPercent));
   }
 
   @Get('projects')

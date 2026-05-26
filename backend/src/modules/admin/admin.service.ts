@@ -47,7 +47,7 @@ export class AdminService {
     };
   }
 
-  async getUsers(page = 1, limit = 20, search?: string, role?: string) {
+  async getUsers(page = 1, limit = 10, search?: string, role?: string) {
     const skip = (page - 1) * limit;
     const where: any = {};
     if (search) {
@@ -68,7 +68,7 @@ export class AdminService {
         orderBy: { createdAt: 'desc' },
         select: {
           id: true, email: true, firstName: true, lastName: true,
-          role: true, status: true, emailVerified: true, createdAt: true,
+          avatar: true, role: true, status: true, emailVerified: true, createdAt: true,
           workerProfile: { select: { id: true, verificationStatus: true, rating: true } },
         },
       }),
@@ -136,15 +136,25 @@ export class AdminService {
     return { data: analytics };
   }
 
-  async assignWorkerToProject(projectId: string, workerUserId: string, finalPrice?: number) {
+  async assignWorkerToProject(
+    projectId: string,
+    workerUserId: string,
+    finalPrice: number,
+    commissionPercent: number,
+  ) {
     const project = await this.prisma.project.findUnique({ where: { id: projectId } });
     if (!project) throw new NotFoundException('Project not found');
     if (!['OPEN', 'DRAFT'].includes(project.status)) {
       throw new BadRequestException('Project must be OPEN or DRAFT to assign a worker');
     }
+    if (!finalPrice || finalPrice <= 0) throw new BadRequestException('Kelishilgan summa kiritilishi shart');
+    if (commissionPercent < 0 || commissionPercent > 100) throw new BadRequestException('Foiz 0–100 oraligida bo\'lishi kerak');
 
     const workerProfile = await this.prisma.workerProfile.findUnique({ where: { userId: workerUserId } });
     if (!workerProfile) throw new NotFoundException('Worker profile not found for this user');
+
+    const commission = (finalPrice * commissionPercent) / 100;
+    const netAmount = finalPrice - commission;
 
     await this.prisma.$transaction([
       this.prisma.project.update({
@@ -152,7 +162,22 @@ export class AdminService {
         data: {
           status: 'IN_PROGRESS',
           assignedWorkerId: workerUserId,
-          ...(finalPrice ? { finalPrice } : {}),
+          finalPrice,
+          commissionPercent,
+        },
+      }),
+      this.prisma.workerProfile.update({
+        where: { userId: workerUserId },
+        data: { status: 'BUSY' },
+      }),
+      this.prisma.payment.create({
+        data: {
+          projectId,
+          payerId: project.clientId,
+          amount: finalPrice,
+          commission,
+          netAmount,
+          status: 'PENDING',
         },
       }),
       this.prisma.chat.upsert({
@@ -162,10 +187,13 @@ export class AdminService {
       }),
     ]);
 
-    return { message: 'Worker assigned to project by admin' };
+    return {
+      message: 'Worker assigned to project by admin',
+      data: { finalPrice, commissionPercent, commission, netAmount },
+    };
   }
 
-  async getAllProjects(page = 1, limit = 20, status?: string) {
+  async getAllProjects(page = 1, limit = 10, status?: string) {
     const skip = (page - 1) * limit;
     const where: any = {};
     if (status) where.status = status;
